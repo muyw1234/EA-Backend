@@ -1,41 +1,35 @@
-import mongoose from "mongoose";
-import Libro, { ILibroModel, ILibro } from "../models/Libro";
+import mongoose from 'mongoose';
+import Libro, { ILibroModel, ILibro } from '../models/Libro';
+import { callGoogleApi } from './Util';
 
-const createLibro = async (data: Partial<ILibro>): Promise<ILibroModel> => {
+export async function createLibro(data: Partial<ILibro>): Promise<ILibro | null> {
     const libro = new Libro({
         _id: new mongoose.Types.ObjectId(),
         ...data
     });
     return await libro.save();
-};
+}
+export async function createLibroByIsbn(isbn: string): Promise<ILibro | null> {
+    let data = callGoogleApi(isbn);
+    const libro = new Libro({
+        _id: new mongoose.Types.ObjectId(),
+        ...data
+    });
+    return await libro.save();
+}
 
-const getLibro = async (libroId: string): Promise<ILibroModel | null> => {
-    return await Libro.findById(libroId);
-};  
+export async function readLibro(id: string): Promise<ILibro | null> {
+    return await Libro.findById(id);
+}
 
-const getAllLibros = async (): Promise<ILibroModel[]> => {
+export async function readLibros(id: string): Promise<ILibro[] | []> {
     return await Libro.find();
-};
+}
 
-const updateLibro = async (libroId: string, data: Partial<ILibro>): Promise<ILibroModel | null> => {
-    const libro = await Libro.findById(libroId);
-    if (libro) {
-        libro.set(data);
-        return await libro.save();
-    }
-    return null;
-};  
+export async function updateLibro(id: string, data: ILibro): Promise<ILibro | null> {
+    return await Libro.findByIdAndUpdate(id, { title: data.title, authors: data.authors, isbn: data.isbn });
+}
 
-const deleteLibro = async (libroId: string): Promise<ILibroModel | null> => {
-    return await Libro.findByIdAndUpdate(libroId, 
-        { IsDeleted: true }, 
-        { new: true }); // Soft delete by setting IsDeleted to true
-};
-
-const restoreLibro = async (libroId: string): Promise<ILibroModel | null> => {
-    return await Libro.findByIdAndUpdate(libroId, 
-        { IsDeleted: false }, 
-        { new: true }); // Restore by setting IsDeleted to false
-};
-
-export default { createLibro, getLibro, getAllLibros, updateLibro, deleteLibro, restoreLibro };
+export async function deleteLibro(id: string): Promise<ILibro | null> {
+    return await Libro.findByIdAndDelete(id);
+}
