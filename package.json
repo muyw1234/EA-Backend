@@ -4,6 +4,7 @@
     "description": "",
     "main": "src/server.ts",
     "scripts": {
+        "go": "tsc && node build/server.js",
         "start": "node build/server.js",
         "postinstall": "tsc"
     },

@@ -32,13 +32,23 @@ const getAllAutores = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
+// Devuelve la lista completa de autores no eliminados
+const getAllAutores_NOT_Deleted = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const autores = await AutorService.getAllAutores_NOT_Deleted();
+        return res.status(200).json(autores);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 // Actualiza los datos de un autor existente
 const updateAutor = async (req: Request, res: Response, next: NextFunction) => {
     const autorId = req.params.autorId;
     try {
         const savedAutor = await AutorService.updateAutor(autorId, req.body);
         if (savedAutor) {
-            return res.status(201).json(savedAutor);
+            return res.status(200).json(savedAutor);
         } else {
             return res.status(404).json({ message: 'not found' });
         }
@@ -58,4 +68,4 @@ const deleteAutor = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export default { createAutor, getAutor, getAllAutores, updateAutor, deleteAutor };
+export default { createAutor, getAutor, getAllAutores, getAllAutores_NOT_Deleted, updateAutor, deleteAutor };

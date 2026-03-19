@@ -7,6 +7,8 @@ import { IEvento } from '../models/Evento';
 import { IChat } from '../models/Chat';
 import { IMensaje } from '../models/Mensaje';
 import Logging from '../library/Logging';
+import { IAutor } from '../models/Autor';
+import { isBindingName } from 'typescript';
 
 export const ValidateJoi = (schema: ObjectSchema) => {
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -27,14 +29,28 @@ export const Schemas = {
         create: Joi.object<IUsuario>({
             name: Joi.string().required(),
             email: Joi.string().email().required(),
-            password: Joi.string().min(6).required()
+            password: Joi.string().min(6).required(),
+            libros: Joi.array().items(Joi.string().optional()),
+            IsDeleted: Joi.boolean().optional()
         }),
         update: Joi.object<IUsuario>({
             name: Joi.string().required(),
             email: Joi.string().email().required(),
-            password: Joi.string().min(6).required(), 
+            password: Joi.string().min(6).required(),
+            IsDeleted: Joi.boolean().optional()
         })
     },
+    Autor: {
+        create: Joi.object<IAutor>({
+            fullName: Joi.string().required(),
+            IsDeleted: Joi.boolean().optional()
+        }),
+        update: Joi.object<IAutor>({
+            fullName: Joi.string().required(),
+            IsDeleted: Joi.boolean().optional()
+        })
+    },
+
     libreria: {
         create: Joi.object<ILibreria>({
             name: Joi.string().required(),
@@ -42,27 +58,21 @@ export const Schemas = {
         }),
         update: Joi.object<ILibreria>({
             name: Joi.string().required(),
-            address: Joi.string().required(), 
+            address: Joi.string().required()
         })
     },
     libro: {
         create: Joi.object<ILibro>({
+            isbn: Joi.string().required(),
             title: Joi.string().required(),
-            author: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
-            description: Joi.string().required(),
-            price: Joi.number().required(),
-            type: Joi.string().valid('VENTA', 'ALQUILER').required(),
-            owner: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
-            libreria: Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional()
+            authors: Joi.array().items(Joi.string().optional()),
+            IsDeleted: Joi.boolean().optional()
         }),
         update: Joi.object<ILibro>({
+            isbn: Joi.string().required(),
             title: Joi.string().required(),
-            author: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
-            description: Joi.string().required(),
-            price: Joi.number().required(),
-            type: Joi.string().valid('VENTA', 'ALQUILER').required(),
-            owner: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
-            libreria: Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional()
+            authors: Joi.array().items(Joi.string().optional()),
+            IsDeleted: Joi.boolean().optional()
         })
     },
     evento: {
@@ -70,25 +80,38 @@ export const Schemas = {
             title: Joi.string().required(),
             description: Joi.string().required(),
             date: Joi.date().required(),
-            libreria: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required()
+            libreria: Joi.string()
+                .regex(/^[0-9a-fA-F]{24}$/)
+                .required()
         }),
         update: Joi.object<IEvento>({
             title: Joi.string().required(),
             description: Joi.string().required(),
             date: Joi.date().required(),
-            libreria: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required()
+            libreria: Joi.string()
+                .regex(/^[0-9a-fA-F]{24}$/)
+                .required()
         })
     },
     chat: {
         create: Joi.object<IChat>({
-            participants: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)).min(2).required(),
-            libro: Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional()
+            participants: Joi.array()
+                .items(Joi.string().regex(/^[0-9a-fA-F]{24}$/))
+                .min(2)
+                .required(),
+            libro: Joi.string()
+                .regex(/^[0-9a-fA-F]{24}$/)
+                .optional()
         })
     },
     mensaje: {
         create: Joi.object<IMensaje>({
-            chat: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
-            sender: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+            chat: Joi.string()
+                .regex(/^[0-9a-fA-F]{24}$/)
+                .required(),
+            sender: Joi.string()
+                .regex(/^[0-9a-fA-F]{24}$/)
+                .required(),
             content: Joi.string().required()
         })
     }

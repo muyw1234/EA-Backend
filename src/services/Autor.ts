@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import Autor, {IAutorModel, IAutor} from "../models/Autor";
+import mongoose from 'mongoose';
+import Autor, { IAutorModel, IAutor } from '../models/Autor';
 
 // Crear un autor nuevo
 const createAutor = async (data: Partial<IAutor>): Promise<IAutorModel> => {
@@ -20,6 +20,10 @@ const getAllAutores = async (): Promise<IAutorModel[]> => {
     return await Autor.find();
 };
 
+const getAllAutores_NOT_Deleted = async (): Promise<IAutorModel[]> => {
+    return await Autor.find({ IsDeleted: false });
+};
+
 // Actualizar los datos de un autor
 const updateAutor = async (autorId: string, data: Partial<IAutor>): Promise<IAutorModel | null> => {
     const autor = await Autor.findById(autorId);
@@ -35,4 +39,4 @@ const deleteAutor = async (autorId: string): Promise<IAutorModel | null> => {
     return await Autor.findByIdAndDelete(autorId);
 };
 
-export default { createAutor, getAutor, getAllAutores, updateAutor, deleteAutor };
+export default { createAutor, getAutor, getAllAutores, getAllAutores_NOT_Deleted, updateAutor, deleteAutor };

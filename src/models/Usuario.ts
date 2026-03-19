@@ -4,7 +4,7 @@ export interface IUsuario {
     name: string;
     email: string;
     password: string;
-    libros: mongoose.Types.ObjectId[] | string;
+    libros: mongoose.Types.ObjectId[] | string[]; // Es un array porque claro, un usuario puede tener mas de un libro
     IsDeleted?: boolean;
 }
 
@@ -15,7 +15,7 @@ const UsuarioSchema: Schema = new Schema(
         name: { type: String, required: true },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
-
+        libros: [{ type: Schema.Types.ObjectId, required: false, ref: 'Libro' }],
         IsDeleted: { type: Boolean, default: false }
     },
     {

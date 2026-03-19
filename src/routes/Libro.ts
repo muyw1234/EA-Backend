@@ -9,78 +9,71 @@ const router = express.Router();
  * tags:
  *   - name: Libros
  *     description: Endpoints CRUD de libros
- *
  * components:
  *   schemas:
  *     Libro:
  *       type: object
+ *       description: Representa un libro en la base de datos
  *       properties:
  *         _id:
  *           type: string
  *           description: ObjectId de MongoDB
+ *           example: "65f1c2a1b2c3d4e5f6789012"
+ *         isbn:
+ *           type: string
+ *           description: ISBN del libro
+ *           example: "978-0132350884"
  *         title:
  *           type: string
+ *           description: Título del libro
  *           example: "Clean Code"
- *         author:
- *           type: string
- *           example: "Robert C. Martin"
- *         description:
- *           type: string
- *           example: "A Handbook of Agile Software Craftsmanship"
- *         price:
- *           type: number
- *           example: 25.5
- *         type:
- *           type: string
- *           enum: [VENTA, ALQUILER]
- *           example: "VENTA"
- *         owner:
- *           type: string
- *           description: ID del usuario propietario
- *           example: "65f1c2a1b2c3d4e5f6789012"
- *         libreria:
- *           type: string
- *           description: ID de la librería (opcional)
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *         authors:
+ *           type: array
+ *           description: Lista de autores del libro
+ *           items:
+ *             type: string
+ *           example:
+ *             - "Robert C. Martin"
+ *         isDeleted:
+ *           type: boolean
+ *           description: Indica si el libro ha sido eliminado lógicamente
+ *           example: false
  *     LibroCreateUpdate:
  *       type: object
+ *       description: Datos necesarios para crear o actualizar un libro
  *       required:
  *         - title
- *         - author
- *         - description
- *         - price
- *         - type
- *         - owner
+ *         - authors
  *       properties:
  *         title:
  *           type: string
+ *           description: Título del libro
  *           example: "Clean Code"
- *         author:
+ *         authors:
+ *           type: array
+ *           description: Lista de autores del libro
+ *           items:
+ *             type: string
+ *           example:
+ *             - "Robert C. Martin"
+ *         isbn:
  *           type: string
- *           example: "Robert C. Martin"
- *         description:
- *           type: string
- *         price:
- *           type: number
- *           example: 25.5
- *         type:
- *           type: string
- *           enum: [VENTA, ALQUILER]
- *           example: "VENTA"
- *         owner:
- *           type: string
- *           example: "65f1c2a1b2c3d4e5f6789012"
- *         libreria:
- *           type: string
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *           description: ISBN del libro
+ *           example: "978-0132350884"
+ *         isDeleted:
+ *           type: boolean
+ *           description: Indica si el libro ha sido eliminado lógicamente
+ *           example: false
  */
 
 /**
  * @openapi
  * /libros:
  *   post:
- *     summary: Crea un libro
- *     tags: [Libros]
+ *     summary: Crear un libro
+ *     description: Crea un nuevo libro en la base de datos.
+ *     tags:
+ *       - Libros
  *     requestBody:
  *       required: true
  *       content:
@@ -89,29 +82,63 @@ const router = express.Router();
  *             $ref: '#/components/schemas/LibroCreateUpdate'
  *     responses:
  *       201:
- *         description: Creado
+ *         description: Libro creado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Libro'
  *       422:
- *         description: Validación fallida
+ *         description: Error de validación en los datos enviados
  */
 router.post('/', ValidateJoi(Schemas.libro.create), controller.createLibro);
 
 /**
  * @openapi
+ * /libros/all:
+ *   get:
+ *     summary: Listar todos los libros
+ *     description: Recupera la lista completa de libros registrados.
+ *     tags:
+ *       - Libros
+ *     responses:
+ *       200:
+ *         description: Lista de libros obtenida correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Libro'
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/all', controller.getAllLibros);
+
+/**
+ * @openapi
  * /libros/{libroId}:
  *   get:
- *     summary: Obtiene un libro por ID
- *     tags: [Libros]
+ *     summary: Obtener un libro por ID
+ *     description: Recupera la información de un libro a partir de su identificador.
+ *     tags:
+ *       - Libros
  *     parameters:
  *       - in: path
  *         name: libroId
  *         required: true
+ *         description: ID del libro en MongoDB
  *         schema:
  *           type: string
+ *           example: "65f1c2a1b2c3d4e5f6789012"
  *     responses:
  *       200:
- *         description: OK
+ *         description: Libro obtenido correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Libro'
  *       404:
- *         description: No encontrado
+ *         description: Libro no encontrado
  */
 router.get('/:libroId', controller.getLibro);
 
@@ -119,37 +146,54 @@ router.get('/:libroId', controller.getLibro);
  * @openapi
  * /libros:
  *   get:
- *     summary: Lista todos los libros
- *     tags: [Libros]
+ *     summary: Listar libros no eliminados
+ *     description: Recupera la lista de libros que no han sido eliminados lógicamente.
+ *     tags:
+ *       - Libros
  *     responses:
  *       200:
- *         description: OK
+ *         description: Lista de libros obtenida correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Libro'
  */
-router.get('/', controller.getAllLibros);
+router.get('/', controller.getAllLibros_NOT_Deleted);
 
 /**
  * @openapi
  * /libros/{libroId}:
  *   put:
- *     summary: Actualiza un libro por ID
- *     tags: [Libros]
+ *     summary: Actualizar un libro por ID
+ *     description: Actualiza los datos de un libro existente a partir de su identificador.
+ *     tags:
+ *       - Libros
  *     parameters:
  *       - in: path
  *         name: libroId
  *         required: true
+ *         description: ID del libro en MongoDB
  *         schema:
  *           type: string
+ *           example: "65f1c2a1b2c3d4e5f6789012"
  *     requestBody:
  *       required: true
+ *       description: Datos del libro a actualizar
  *       content:
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/LibroCreateUpdate'
  *     responses:
- *       201:
- *         description: Actualizado
+ *       200:
+ *         description: Libro actualizado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Libro'
  *       404:
- *         description: No encontrado
+ *         description: Libro no encontrado
  */
 router.put('/:libroId', ValidateJoi(Schemas.libro.update), controller.updateLibro);
 
@@ -157,43 +201,24 @@ router.put('/:libroId', ValidateJoi(Schemas.libro.update), controller.updateLibr
  * @openapi
  * /libros/{libroId}:
  *   delete:
- *     summary: Elimina un libro por ID
- *     tags: [Libros]
+ *     summary: Eliminar un libro por ID
+ *     description: Elimina un libro existente a partir de su identificador.
+ *     tags:
+ *       - Libros
  *     parameters:
  *       - in: path
  *         name: libroId
  *         required: true
+ *         description: ID del libro en MongoDB
  *         schema:
  *           type: string
- *         description: ObjectId del libro
+ *           example: "65f1c2a1b2c3d4e5f6789012"
  *     responses:
  *       200:
- *         description: OK
+ *         description: Libro eliminado correctamente
  *       404:
- *         description: No encontrado
+ *         description: Libro no encontrado
  */
 router.delete('/:libroId', controller.deleteLibro);
 
-/**
- * @openapi
- * /libros/{libroId}/restore:
- *   put:
- *     summary: Restaura un libro eliminado por ID
- *     tags: [Libros]
- *     parameters:
- *       - in: path
- *         name: libroId
- *         required: true
- *         schema:
- *           type: string
- *     description: ObjectId del libro
- *     responses:
- *       200:
- *         description: Restaurado
- *       404:
- *         description: No encontrado
- *       500:
- *         description: Error del servidor
- */
-router.put('/:libroId/restore', controller.restoreLibro);
 export default router;

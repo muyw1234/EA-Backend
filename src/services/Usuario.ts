@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Usuario, { IUsuarioModel, IUsuario } from '../models/Usuario';
 import Libro from '../models/Libro';
+
 const createUsuario = async (data: Partial<IUsuario>): Promise<IUsuarioModel> => {
     const usuario = new Usuario({
         _id: new mongoose.Types.ObjectId(),
@@ -10,15 +11,15 @@ const createUsuario = async (data: Partial<IUsuario>): Promise<IUsuarioModel> =>
 };
 
 const getUsuario = async (usuarioId: string): Promise<IUsuarioModel | null> => {
-    return await Usuario.findById(usuarioId);
+    return await Usuario.findById(usuarioId).populate('libros', 'title');
 };
 
 const getAllUsuarios = async (): Promise<IUsuarioModel[]> => {
-    return await Usuario.find();
+    return await Usuario.find().populate('libros', 'title');
 };
 
-const getUsuarioLibros = async (usuarioId: string): Promise<IUsuarioModel[] | null> => {
-    return await Libro.find({ owner: usuarioId, IsDeleted: false });
+const getAllUsuarios_NOT_Deleted = async (): Promise<IUsuarioModel[]> => {
+    return await Usuario.find({ IsDeleted: false }).populate('libros', 'title');
 };
 
 const updateUsuario = async (usuarioId: string, data: Partial<IUsuario>): Promise<IUsuarioModel | null> => {
@@ -31,15 +32,11 @@ const updateUsuario = async (usuarioId: string, data: Partial<IUsuario>): Promis
 };
 
 const deleteUsuario = async (usuarioId: string): Promise<IUsuarioModel | null> => {
-    return await Usuario.findByIdAndUpdate(usuarioId, 
+    return await Usuario.findByIdAndUpdate(
+        usuarioId,
         { IsDeleted: true }, // Soft delete by setting IsDeleted to true
-        { new: true }); // Return the updated document
+        { new: true }
+    ); // Return the updated document
 };
 
-const restoreUsuario = async (usuarioId: string): Promise<IUsuarioModel | null> => {
-    return await Usuario.findByIdAndUpdate(usuarioId,
-        { IsDeleted: false }, // Restore by setting IsDeleted to false
-        { new: true }); // Return the updated document
-}
-
-export default { createUsuario, getUsuario, getAllUsuarios, getUsuarioLibros, updateUsuario, deleteUsuario, restoreUsuario };
+export default { createUsuario, getUsuario, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario };

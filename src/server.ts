@@ -29,14 +29,10 @@ mongoose
 const StartServer = () => {
     /** Log the request */
     router.use((req, res, next) => {
-        Logging.info(
-            `Incomming - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`
-        );
+        Logging.info(`Incomming - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
 
         res.on('finish', () => {
-            Logging.info(
-                `Result - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}] - STATUS: [${res.statusCode}]`
-            );
+            Logging.info(`Result - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}] - STATUS: [${res.statusCode}]`);
         });
 
         next();
@@ -49,7 +45,7 @@ const StartServer = () => {
     router.use(cors());
 
     /** Swagger */
-    router.use('/api', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    router.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
     /** Routes */
     router.use('/usuarios', usuarioRoutes);
@@ -74,7 +70,8 @@ const StartServer = () => {
         });
     });
 
-    http.createServer(router).listen(config.server.port, () =>
-        Logging.info(`Server is running on port ${config.server.port}`)
-    );
+    http.createServer(router).listen(config.server.port, () => {
+        Logging.info(`Server is running on port ${config.server.port}`);
+        Logging.info(`Access Swagger at http://localhost:${config.server.port}/swagger`);
+    });
 };
