@@ -31,8 +31,7 @@ npm install
 ### 2. Arrancar el servidor
 Compilamos el código de TypeScript y levantamos la API:
 ```bash
-npm run build
-npm start
+npm run go
 ```
 
 *(Si todo va bien, verás en la consola que Mongo se ha conectado y el servidor corre en el puerto 1337).*
@@ -40,7 +39,7 @@ npm start
 ### 3. Ver la Documentación en Swagger 👀
 ¡No hace falta probar los Endpoints a ciegas con Postman! He preparado una interfaz gráfica para probar la API.
 Abre tu navegador una vez el servidor esté encendido y visita:
-👉 **[http://localhost:1337/api](http://localhost:1337/api)**
+👉 **[http://localhost:1337/swagger](http://localhost:1337/swagger)**
 
 ---
 
