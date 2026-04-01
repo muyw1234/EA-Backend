@@ -226,6 +226,28 @@ router.delete('/:libroId', controller.deleteLibro);
 
 /**
  * @openapi
+ * /libros/restore/{libroId}:
+ *    put:
+ *     summary: Recuperar un libro desactivado
+ *     description: Cambia el estado IsDeleted a false para que el libro vuelva a estar operativo.
+ *     tags: [Libros]
+ *     parameters:
+ *       - in: path
+ *         name: libroId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ObjectId del libro a recuperar
+ *     responses:
+ *       200:
+ *         description: Libro restaurado con éxito
+ *       404:
+ *         description: No se encontró el libro
+ */
+router.put('/restore/:libroId', controller.restoreLibro);
+
+/**
+ * @openapi
  * /libros/isbn/{isbn}:
  *   get:
  *     summary: Crea un libro a partir de un ISBN

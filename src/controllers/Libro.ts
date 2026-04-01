@@ -63,6 +63,16 @@ const deleteLibro = async (req: Request, res: Response, next: NextFunction) => {
         return res.status(500).json({ error });
     }
 };
+
+const restoreLibro = async (req: Request, res: Response, next: NextFunction) => {
+    const libroId = req.params.libroId;
+    try {        
+        const libro = await LibroService.restoreLibro(libroId);
+        return libro ? res.status(200).json(libro) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
 /** Para testing */
 export async function createLibroByIsbn(req: Request, res: Response, next: NextFunction) {
     const isbn = req.params.isbn;
@@ -78,4 +88,4 @@ export async function createLibroByIsbn(req: Request, res: Response, next: NextF
     }
 }
 
-export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, updateLibro, deleteLibro, createLibroByIsbn };
+export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn };

@@ -197,4 +197,26 @@ router.put('/:autorId', ValidateJoi(Schemas.Autor.update), controller.updateAuto
  */
 router.delete('/:autorId', controller.deleteAutor);
 
+/**
+ * @openapi
+ * /autores/restore/{autorId}:
+ *    put:
+ *     summary: Recuperar un autor desactivado
+ *     description: Cambia el estado IsDeleted a false para que el autor vuelva a estar operativo.
+ *     tags: [Autores]
+ *     parameters:
+ *       - in: path
+ *         name: autorId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ObjectId del autor a recuperar
+ *     responses:
+ *       200:
+ *         description: Autor restaurado con éxito
+ *       404:
+ *         description: No se encontró el autor
+ */
+router.put('/restore/:autorId', controller.restoreAutor);
+
 export default router;

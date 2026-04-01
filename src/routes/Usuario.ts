@@ -233,4 +233,26 @@ router.put('/:usuarioId', ValidateJoi(Schemas.usuario.update), controller.update
  */
 router.delete('/:usuarioId', controller.deleteUsuario);
 
+/**
+ * @openapi
+ * /usuarios/restore/{usuarioId}:
+ *    put:
+ *     summary: Recuperar un usuario desactivado
+ *     description: Cambia el estado IsDeleted a false para que el usuario vuelva a estar operativo.
+ *     tags: [Usuarios]
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ObjectId del usuario a recuperar
+ *     responses:
+ *       200:
+ *         description: Usuario restaurado con éxito
+ *       404:
+ *         description: No se encontró el usuario
+ */
+router.put('/restore/:usuarioId', controller.restoreUsuario);
+
 export default router;

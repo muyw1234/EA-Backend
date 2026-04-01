@@ -39,8 +39,14 @@ const deleteAutor = async (autorId: string): Promise<IAutorModel | null> => {
     return await Autor.findByIdAndDelete(autorId);
 };
 
+const restoreAutor = async (autorId: string): Promise<IAutorModel | null> => {
+    return await Autor.findByIdAndUpdate(autorId,
+        { IsDeleted: false }, 
+        { new: true }); 
+};
+
 async function getByName(fullName: string): Promise<IAutorModel | null> {
     return await Autor.findOne({ fullName: fullName });
 }
 
-export default { createAutor, getAutor, getAllAutores, getAllAutores_NOT_Deleted, updateAutor, deleteAutor, getByName };
+export default { createAutor, getAutor, getAllAutores, getAllAutores_NOT_Deleted, updateAutor, deleteAutor, restoreAutor, getByName };

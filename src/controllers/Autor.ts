@@ -68,4 +68,14 @@ const deleteAutor = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export default { createAutor, getAutor, getAllAutores, getAllAutores_NOT_Deleted, updateAutor, deleteAutor };
+const restoreAutor = async (req: Request, res: Response, next: NextFunction) => {
+    const autorId = req.params.autorId;
+    try {        
+        const autor = await AutorService.restoreAutor(autorId);
+        return autor ? res.status(200).json(autor) : res.status(404).json({ message: 'not found' });
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
+export default { createAutor, getAutor, getAllAutores, getAllAutores_NOT_Deleted, updateAutor, deleteAutor, restoreAutor };

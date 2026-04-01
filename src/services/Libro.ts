@@ -50,8 +50,14 @@ export async function deleteLibro(id: string): Promise<ILibro | null> {
     return await Libro.findByIdAndDelete(id);
 }
 
+export async function restoreLibro(libroId: string): Promise<ILibro | null> {
+    return await Libro.findByIdAndUpdate(libroId,
+        { IsDeleted: false }, 
+        { new: true }); 
+};
+
 export async function getLibroByIsbn(isbn: string): Promise<ILibro | null> {
     return await Libro.findOne({ isbn: isbn });
 }
 
-export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, updateLibro, deleteLibro, getLibroByIsbn };
+export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, updateLibro, deleteLibro, restoreLibro, getLibroByIsbn };
