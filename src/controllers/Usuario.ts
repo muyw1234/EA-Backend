@@ -1,12 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import mongoose from 'mongoose';
 import UsuarioService from '../services/Usuario';
 
 const createUsuario = async (req: Request, res: Response, next: NextFunction) => {
-   
-
     try {
-       const savedUsuario = await UsuarioService.createUsuario(req.body);
+        const savedUsuario = await UsuarioService.createUsuario(req.body);
         return res.status(201).json(savedUsuario);
     } catch (error) {
         return res.status(500).json({ error });
@@ -35,6 +32,7 @@ const readAll = async (req: Request, res: Response, next: NextFunction) => {
 
 const updateUsuario = async (req: Request, res: Response, next: NextFunction) => {
     const usuarioId = req.params.usuarioId;
+
     try {
         const updatedUsuario = await UsuarioService.updateUsuario(usuarioId, req.body);
         return updatedUsuario ? res.status(201).json(updatedUsuario) : res.status(404).json({ message: 'not found' });
@@ -42,7 +40,6 @@ const updateUsuario = async (req: Request, res: Response, next: NextFunction) =>
         return res.status(500).json({ error });
     }
 };
-
 
 const deleteUsuario = async (req: Request, res: Response, next: NextFunction) => {
     const usuarioId = req.params.usuarioId;
