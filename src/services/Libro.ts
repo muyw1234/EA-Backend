@@ -5,6 +5,21 @@ import Logging from '../library/Logging';
 import Autor from './Autor';
 
 export async function createLibro(data: Partial<ILibro>): Promise<ILibro | null> {
+    let autores = [];
+    if (data.authors && Array.isArray(data.authors)) {
+        for (const author of data.authors) {
+            // Si es un string y NO es un ObjectId válido, lo tratamos como un nombre completo
+            if (typeof author === 'string' && !mongoose.Types.ObjectId.isValid(author)) {
+                let l_autor = await Autor.getByName(author);
+                if (!l_autor) l_autor = await Autor.createAutor({ fullName: author });
+                autores.push(l_autor._id);
+            } else {
+                autores.push(author);
+            }
+        }
+        data.authors = autores;
+    }
+
     const libro = new Libro({
         _id: new mongoose.Types.ObjectId(),
         ...data
