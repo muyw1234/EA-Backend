@@ -5,20 +5,24 @@ import Logging from '../library/Logging';
 
 export interface IPayload {
     _id: string;
+    rol: 'Admin' | 'User';
     iat?: number;
     exp?: number;
 }
 
 export const TokenValidation = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.header('Authorization');
+
     if (!authHeader) {
         Logging.warning('Token validation failed: No Authorization header provided');
         return res.status(401).json({ message: 'No hay token' });
     }
+
     try {
         const token = authHeader.split(' ')[1];
         const payload = jwt.verify(token, config.jwt.accessSecret) as IPayload;
         req.userId = payload._id;
+        req.userRol = payload.rol;
         next();
     } catch (error) {
         Logging.error(`Token validation error: ${error}`);

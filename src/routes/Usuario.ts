@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/Usuario';
 import { Schemas, ValidateJoi } from '../middleware/Joi';
-
+import { isAdmin } from '../middleware/AuthRole';
 const router = express.Router();
 
 /**
@@ -207,7 +207,7 @@ router.get('/', controller.getAllUsuarios_NOT_Deleted);
  *       422:
  *         description: Error de validación en los datos enviados
  */
-router.put('/:usuarioId', ValidateJoi(Schemas.usuario.update), controller.updateUsuario);
+router.put('/:usuarioId', isAdmin, ValidateJoi(Schemas.usuario.update), controller.updateUsuario);
 
 /**
  * @openapi
@@ -231,8 +231,8 @@ router.put('/:usuarioId', ValidateJoi(Schemas.usuario.update), controller.update
  *       404:
  *         description: Usuario no encontrado
  */
-router.delete('/:usuarioId', controller.deleteUsuario);
-router.delete('/permanent/:usuarioId', controller.permanentDeleteUsuario);
-router.put('/restore/:usuarioId', controller.restoreUsuario);
+router.delete('/:usuarioId', isAdmin, controller.deleteUsuario);
+router.delete('/permanent/:usuarioId', isAdmin, controller.permanentDeleteUsuario);
+router.put('/restore/:usuarioId', isAdmin, controller.restoreUsuario);
 
 export default router;

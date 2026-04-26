@@ -21,7 +21,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
         user.password = await user.encryptPassword(user.password);
 
         const savedUser = await user.save();
-        const token: string = jwt.sign({ _id: savedUser._id }, config.jwt.accessSecret);
+        const token: string = jwt.sign({ _id: savedUser._id, rol: savedUser.rol }, config.jwt.accessSecret);
         return res.header('auth-token', token).status(201).json({ user: savedUser, token });
     } catch (error: any) {
         Logging.error(`Signup error: ${error}`);
@@ -38,7 +38,7 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
         if (!user) return res.status(400).json('Email or password is wrong');
         const correctPassword: boolean = await user.validatePassword(req.body.password);
         if (!correctPassword) return res.status(400).json('Incorrect password');
-        const token: string = jwt.sign({ _id: user._id } as IPayload, config.jwt.accessSecret, {
+        const token: string = jwt.sign({ _id: user._id, rol: user.rol } as IPayload, config.jwt.accessSecret, {
             expiresIn: 60 * 15 // tiempo de expiracion en segundos, pero poniendo config.jwt.expiresIn siempre me da errores
         });
         return res.header('auth-token', token).status(200).json({ user, token });
