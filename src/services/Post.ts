@@ -37,7 +37,8 @@ async function createPostByIsbn(isbn: string, data: Partial<IPost>): Promise<IPo
         imageUrl: data.imageUrl,
         IsDeleted: data.IsDeleted,
         ownerId: data.ownerId,
-        bookId: libro?._id
+        bookId: libro?._id,
+        price: data.price
     });
 
     return buffer.save();

@@ -9,6 +9,7 @@ export enum PostStatus {
 
 export interface IPost extends Document {
     description: string;
+    price: number;
     status: string; //PostStatus; // nunca he probado a hacer un enum en typescript
     imageUrl?: string; // opcional, si no sube nada entonces le ponemos un imagen default
     IsDeleted?: boolean;
@@ -23,7 +24,8 @@ const PostSchema = new Schema(
         imageUrl: { type: String },
         IsDeleted: { type: Boolean, default: false },
         ownerId: { type: Schema.Types.ObjectId, required: true, ref: 'Usuario' },
-        bookId: { type: Schema.Types.ObjectId, required: true, ref: 'Libro' }
+        bookId: { type: Schema.Types.ObjectId, required: true, ref: 'Libro' },
+        price: { type: Schema.Types.Number, default: 0 }
     },
     {
         timestamps: true,

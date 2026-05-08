@@ -27,7 +27,8 @@ async function createPostByIsbn(req: Request, res: Response, next: NextFunction)
             status: req.body.status,
             imageUrl: req.body.imageUrl,
             IsDeleted: req.body.isDeleted,
-            ownerId: req.body.ownerId
+            ownerId: req.body.ownerId,
+            price: req.body.price
         });
         return res.status(201).json(buffer);
     } catch (error) {
@@ -65,7 +66,8 @@ async function updatePost(req: Request, res: Response, next: NextFunction) {
             imageUrl: req.body.imageUrl,
             IsDeleted: req.body.isDeleted,
             ownerId: req.body.ownerId,
-            bookId: req.body.bookId
+            bookId: req.body.bookId,
+            price: req.body.price
         };
         const buffer = await PostService.updatePost(req.params.id as string, data);
         return res.status(200).json(buffer);

@@ -1,4 +1,4 @@
-import Joi, { ObjectSchema } from 'joi';
+import Joi, { number, ObjectSchema } from 'joi';
 import { NextFunction, Request, Response } from 'express';
 import { IUsuario } from '../models/Usuario';
 import { ILibreria } from '../models/Libreria';
@@ -126,7 +126,8 @@ export const Schemas = {
             imageUrl: Joi.string().uri().allow('').optional(),
             IsDeleted: Joi.bool().optional(),
             ownerId: Joi.string().required(),
-            bookId: Joi.string().required()
+            bookId: Joi.string().required(),
+            price: Joi.number().optional()
         }),
         update: Joi.object<IPost>({
             description: Joi.string().optional(),
@@ -134,7 +135,8 @@ export const Schemas = {
             imageUrl: Joi.string().uri().allow('').optional(),
             IsDeleted: Joi.bool().optional(),
             ownerId: Joi.string().optional(),
-            bookId: Joi.string().optional()
+            bookId: Joi.string().optional(),
+            price: Joi.number().optional()
         })
     },
     /*
