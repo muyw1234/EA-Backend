@@ -57,6 +57,10 @@ export async function getAllLibros_NOT_Deleted(): Promise<ILibro[] | []> {
     return await Libro.find({ IsDeleted: false }).populate('authors', 'fullName');
 }
 
+export async function getLibrosByType(type: string): Promise<ILibro[] | []> {
+    return await Libro.find({ type: type, IsDeleted: false }).populate('authors', 'fullName');
+}
+
 export async function updateLibro(id: string, data: ILibro): Promise<ILibro | null> {
     return await Libro.findByIdAndUpdate(id, data, { new: true });
 }
@@ -73,4 +77,4 @@ export async function getLibroByIsbn(isbn: string): Promise<ILibro | null> {
     return await Libro.findOne({ isbn: isbn });
 }
 
-export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, updateLibro, deleteLibro, restoreLibro, getLibroByIsbn };
+export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, getLibroByIsbn };

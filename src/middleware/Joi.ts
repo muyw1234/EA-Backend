@@ -67,12 +67,18 @@ export const Schemas = {
             isbn: Joi.string().required(),
             title: Joi.string().required(),
             authors: Joi.array().items(Joi.string().optional()),
+            type: Joi.string().valid('VENTA', 'ALQUILER').required(),
+            precio: Joi.number().required(),
+            estado: Joi.string().required(),
             IsDeleted: Joi.boolean().optional()
         }),
         update: Joi.object<ILibro>({
             isbn: Joi.string().optional(),
             title: Joi.string().optional(),
             authors: Joi.array().items(Joi.string().optional()),
+            type: Joi.string().valid('VENTA', 'ALQUILER').optional(),
+            precio: Joi.number().optional(),
+            estado: Joi.string().optional(),
             IsDeleted: Joi.boolean().optional()
         })
     },
