@@ -26,10 +26,12 @@ export const ValidateJoi = (schema: ObjectSchema) => {
 
 export const Schemas = {
     usuario: {
-        create: Joi.object<IUsuario>({
+        create: Joi.object({
             name: Joi.string().required(),
             email: Joi.string().email().required(),
+            confirmEmail: Joi.string().valid(Joi.ref('email')).required(),
             password: Joi.string().min(6).required(),
+            confirmPassword: Joi.string().valid(Joi.ref('password')).required(),
             libros: Joi.array().items(Joi.string().optional()),
             IsDeleted: Joi.boolean().optional()
         }),
