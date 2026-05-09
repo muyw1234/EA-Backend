@@ -6,6 +6,7 @@ const createUsuario = async (data: Partial<IUsuario>): Promise<IUsuarioModel> =>
         _id: new mongoose.Types.ObjectId(),
         ...data
     });
+
     return await usuario.save();
 };
 

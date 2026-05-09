@@ -164,6 +164,7 @@ router.get('/:libroId', controller.getLibro);
  *                 $ref: '#/components/schemas/Libro'
  */
 router.get('/', controller.getAllLibros_NOT_Deleted);
+router.get('/type/:type', controller.getLibrosByType);
 
 /**
  * @openapi

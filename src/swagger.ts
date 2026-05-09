@@ -12,7 +12,7 @@ const options: Options = {
         },
         servers: [
             {
-                url: `http://localhost:${config.server.port}`
+                url: `http://${config.server.swaggerUrl}:${config.server.port}`
             }
         ],
         components: {

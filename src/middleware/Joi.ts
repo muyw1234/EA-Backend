@@ -1,4 +1,4 @@
-import Joi, { ObjectSchema } from 'joi';
+import Joi, { number, ObjectSchema } from 'joi';
 import { NextFunction, Request, Response } from 'express';
 import { IUsuario } from '../models/Usuario';
 import { ILibreria } from '../models/Libreria';
@@ -70,12 +70,18 @@ export const Schemas = {
             isbn: Joi.string().required(),
             title: Joi.string().required(),
             authors: Joi.array().items(Joi.string().optional()),
+            type: Joi.string().valid('VENTA', 'ALQUILER').required(),
+            precio: Joi.number().required(),
+            estado: Joi.string().required(),
             IsDeleted: Joi.boolean().optional()
         }),
         update: Joi.object<ILibro>({
             isbn: Joi.string().optional(),
             title: Joi.string().optional(),
             authors: Joi.array().items(Joi.string().optional()),
+            type: Joi.string().valid('VENTA', 'ALQUILER').optional(),
+            precio: Joi.number().optional(),
+            estado: Joi.string().optional(),
             IsDeleted: Joi.boolean().optional()
         })
     },
@@ -123,18 +129,20 @@ export const Schemas = {
         create: Joi.object<IPost>({
             description: Joi.string().required(),
             status: Joi.string().valid('VENTA', 'ALQUILER', 'NO_DISPONIBLE').required(),
-            imageUrl: Joi.string().uri().optional(),
+            imageUrl: Joi.string().uri().allow('').optional(),
             IsDeleted: Joi.bool().optional(),
             ownerId: Joi.string().required(),
-            bookId: Joi.string().required()
+            bookId: Joi.string().required(),
+            price: Joi.number().optional()
         }),
         update: Joi.object<IPost>({
             description: Joi.string().optional(),
             status: Joi.string().valid('VENTA', 'ALQUILER', 'NO_DISPONIBLE').optional(),
-            imageUrl: Joi.string().uri().optional(),
+            imageUrl: Joi.string().uri().allow('').optional(),
             IsDeleted: Joi.bool().optional(),
             ownerId: Joi.string().optional(),
-            bookId: Joi.string().optional()
+            bookId: Joi.string().optional(),
+            price: Joi.number().optional()
         })
     },
     /*

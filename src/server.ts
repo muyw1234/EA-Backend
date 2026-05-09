@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import { config } from './config/config';
@@ -15,6 +16,8 @@ import authRoutes from './routes/auth';
 import postRoutes from './routes/Post';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
+import { socketHandler } from './services/SocketHandler';
+import { ensureGlobalChat } from './library/ChatUtils';
 
 const router = express();
 
@@ -23,6 +26,7 @@ mongoose
     .connect(config.mongo.url, { retryWrites: true, w: 'majority' })
     .then(() => {
         Logging.info('Mongo connected successfully.');
+        ensureGlobalChat();
         StartServer();
     })
     .catch((error) => Logging.error(error));
@@ -74,7 +78,17 @@ const StartServer = () => {
         });
     });
 
-    http.createServer(router).listen(config.server.port, () => {
+    const httpServer = http.createServer(router);
+    const io = new Server(httpServer, {
+        cors: {
+            origin: '*',
+            methods: ['GET', 'POST']
+        }
+    });
+
+    socketHandler(io);
+
+    httpServer.listen(config.server.port, () => {
         Logging.info(`Server is running on port ${config.server.port}`);
         Logging.info(`Access Swagger at http://localhost:${config.server.port}/swagger`);
     });

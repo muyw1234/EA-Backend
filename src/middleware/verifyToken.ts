@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import Logging from '../library/Logging';
+import bcrypt from 'bcryptjs';
 
 export interface IPayload {
     _id: string;
@@ -38,3 +39,10 @@ export const TokenValidation = (req: Request, res: Response, next: NextFunction)
 //     if (req.user.role !== 'Admin') return res.status(401).json({ message: 'You are unauthorized' });
 //     next();
 // }
+
+// Solamente para crear usuarios.
+export async function encryptPassword(req: Request, res: Response, next: NextFunction) {
+    const salt = await bcrypt.genSalt(10);
+    req.body.password = await bcrypt.hash(req.body.password, salt);
+    next();
+}

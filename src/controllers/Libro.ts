@@ -40,6 +40,16 @@ const getAllLibros_NOT_Deleted = async (req: Request, res: Response, next: NextF
     }
 };
 
+const getLibrosByType = async (req: Request, res: Response, next: NextFunction) => {
+    const type = req.params.type;
+    try {
+        const libros = await LibroService.getLibrosByType(type);
+        return res.status(200).json(libros);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const updateLibro = async (req: Request, res: Response, next: NextFunction) => {
     const libroId = req.params.libroId;
     try {
@@ -88,4 +98,4 @@ export async function createLibroByIsbn(req: Request, res: Response, next: NextF
     }
 }
 
-export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn };
+export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn };

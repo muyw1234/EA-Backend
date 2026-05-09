@@ -2,7 +2,7 @@ import express from 'express';
 import controller from '../controllers/Usuario';
 import { Schemas, ValidateJoi } from '../middleware/Joi';
 import { isAdmin } from '../middleware/AuthRole';
-import { TokenValidation } from '../middleware/verifyToken';
+import { TokenValidation, encryptPassword } from '../middleware/verifyToken';
 const router = express.Router();
 
 /**
@@ -103,7 +103,7 @@ const router = express.Router();
  *       422:
  *         description: Error de validación en los datos enviados
  */
-router.post('/', TokenValidation, isAdmin, ValidateJoi(Schemas.usuario.create), controller.createUsuario);
+router.post('/', encryptPassword, ValidateJoi(Schemas.usuario.create), controller.createUsuario);
 
 /**
  * @openapi
@@ -171,7 +171,7 @@ router.get('/:usuarioId', TokenValidation, controller.getUsuario);
  *               items:
  *                 $ref: '#/components/schemas/Usuario'
  */
-router.get('/',TokenValidation, controller.getAllUsuarios_NOT_Deleted);
+router.get('/', TokenValidation, controller.getAllUsuarios_NOT_Deleted);
 
 /**
  * @openapi
@@ -208,7 +208,7 @@ router.get('/',TokenValidation, controller.getAllUsuarios_NOT_Deleted);
  *       422:
  *         description: Error de validación en los datos enviados
  */
-router.put('/:usuarioId',TokenValidation, isAdmin, ValidateJoi(Schemas.usuario.update), controller.updateUsuario);
+router.put('/:usuarioId', TokenValidation, isAdmin, ValidateJoi(Schemas.usuario.update), controller.updateUsuario);
 
 /**
  * @openapi
