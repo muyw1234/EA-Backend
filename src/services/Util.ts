@@ -32,7 +32,10 @@ export async function callGoogleApi(isbn: string): Promise<ILibro> {
                 title: buffer.title,
                 isbn: buffer.industryIdentifiers[1].identifier,
                 authors: buffer.authors as string[],
-                IsDeleted: false
+                IsDeleted: false,
+                type: 'VENTA',
+                precio: 0,
+                estado: 'Nuevo'
             };
             return res;
         })
@@ -74,7 +77,10 @@ export async function callOpenLibraryBookApi(isbn: string): Promise<ILibro> {
                 title: title,
                 isbn: isbn,
                 authors: autores2,
-                IsDeleted: false
+                IsDeleted: false,
+                type: 'VENTA',
+                precio: 0,
+                estado: 'Nuevo'
             };
             return libro;
         })
