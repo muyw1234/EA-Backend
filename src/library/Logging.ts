@@ -1,8 +1,25 @@
-import chalk from 'chalk';
+import pino, { Logger } from 'pino';
+
+const logger: Logger = pino({
+    level: process.env.LOG_LEVEL || 'info',
+    transport:
+        process.env.NODE_ENV !== 'production'
+            ? {
+                  target: 'pino-pretty',
+                  options: {
+                      colorize: true,
+                      translateTime: 'SYS:standard',
+                      ignore: 'pid,hostname'
+                  }
+              }
+            : undefined
+});
 
 export default class Logging {
-    public static log = (args: any) => this.info(args);
-    public static info = (args: any) => console.log(chalk.blue(`[${new Date().toLocaleString()}] [INFO]`), typeof args === 'string' ? chalk.blueBright(args) : args);
-    public static warning = (args: any) => console.log(chalk.yellow(`[${new Date().toLocaleString()}] [WARN]`), typeof args === 'string' ? chalk.yellowBright(args) : args);
-    public static error = (args: any) => console.log(chalk.red(`[${new Date().toLocaleString()}] [ERROR]`), typeof args === 'string' ? chalk.redBright(args) : args);
+    public static logger = logger;
+
+    public static log = (args: unknown) => this.info(args);
+    public static info = (args: unknown) => logger.info(args);
+    public static warning = (args: unknown) => logger.warn(args);
+    public static error = (args: unknown) => logger.error(args);
 }

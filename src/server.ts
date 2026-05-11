@@ -3,6 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import pinoHttp from 'pino-http';
 import { config } from './config/config';
 import Logging from './library/Logging';
 import usuarioRoutes from './routes/Usuario';
@@ -34,15 +35,7 @@ mongoose
 /** Only Start Server if Mongoose Connects */
 const StartServer = () => {
     /** Log the request */
-    router.use((req, res, next) => {
-        Logging.info(`Incomming - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}]`);
-
-        res.on('finish', () => {
-            Logging.info(`Result - METHOD: [${req.method}] - URL: [${req.url}] - IP: [${req.socket.remoteAddress}] - STATUS: [${res.statusCode}]`);
-        });
-
-        next();
-    });
+    router.use(pinoHttp({ logger: Logging.logger }));
 
     router.use(express.urlencoded({ extended: true }));
     router.use(express.json());
