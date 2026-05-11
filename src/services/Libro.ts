@@ -3,6 +3,7 @@ import Libro, { ILibroModel, ILibro } from '../models/Libro';
 import { callOpenLibraryBookApi } from './Util';
 import Logging from '../library/Logging';
 import Autor from './Autor';
+import { getPagination, PaginatedResult } from './Pagination';
 
 export async function createLibro(data: Partial<ILibro>): Promise<ILibro | null> {
     let autores = [];
@@ -53,12 +54,49 @@ export async function getLibro(id: string): Promise<ILibro | null> {
     return await Libro.findById(id).populate('authors', 'fullName');
 }
 
-export async function getAllLibros(): Promise<ILibro[] | []> {
-    return await Libro.find().populate('authors', 'fullName');
+export async function getAllLibros(page = 1, limit = 10): Promise<PaginatedResult<ILibro>> {
+    const pagination = getPagination(page, limit);
+    const [data, total] = await Promise.all([
+        Libro.find()
+            .sort({ _id: 1 })
+            .skip(pagination.skip)
+            .limit(pagination.limit)
+            .populate('authors', 'fullName'),
+        Libro.countDocuments()
+    ]);
+
+    return {
+        data,
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        }
+    };
 }
 
-export async function getAllLibros_NOT_Deleted(): Promise<ILibro[] | []> {
-    return await Libro.find({ IsDeleted: false }).populate('authors', 'fullName');
+export async function getAllLibros_NOT_Deleted(page = 1, limit = 10): Promise<PaginatedResult<ILibro>> {
+    const pagination = getPagination(page, limit);
+    const filter = { IsDeleted: false };
+    const [data, total] = await Promise.all([
+        Libro.find(filter)
+            .sort({ _id: 1 })
+            .skip(pagination.skip)
+            .limit(pagination.limit)
+            .populate('authors', 'fullName'),
+        Libro.countDocuments(filter)
+    ]);
+
+    return {
+        data,
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        }
+    };
 }
 
 export async function getLibrosByType(type: string): Promise<ILibro[] | []> {

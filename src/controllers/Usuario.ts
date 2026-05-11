@@ -4,6 +4,7 @@ import UsuarioService from '../services/Usuario';
 import Usuario, { IUsuarioModel } from '../models/Usuario';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
+import { getPaginationParams } from './Pagination';
 
 const createUsuario = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -26,7 +27,8 @@ const getUsuario = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAllUsuarios = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const usuarios = await UsuarioService.getAllUsuarios();
+        const { page, limit } = getPaginationParams(req);
+        const usuarios = await UsuarioService.getAllUsuarios(page, limit);
         return res.status(200).json(usuarios);
     } catch (error) {
         return res.status(500).json({ error });
@@ -35,7 +37,8 @@ const getAllUsuarios = async (req: Request, res: Response, next: NextFunction) =
 
 const getAllUsuarios_NOT_Deleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const usuarios = await UsuarioService.getAllUsuarios_NOT_Deleted();
+        const { page, limit } = getPaginationParams(req);
+        const usuarios = await UsuarioService.getAllUsuarios_NOT_Deleted(page, limit);
         return res.status(200).json(usuarios);
     } catch (error) {
         return res.status(500).json({ error });

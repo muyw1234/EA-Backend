@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { IPost } from '../models/Post';
 import PostService from '../services/Post';
 import Logging from '../library/Logging';
+import { getPaginationParams } from './Pagination';
 
 async function createPost(req: Request, res: Response, next: NextFunction) {
     try {
@@ -50,7 +51,8 @@ async function readPost(req: Request, res: Response, next: NextFunction) {
 
 async function readAllPost(req: Request, res: Response, next: NextFunction) {
     try {
-        const buffer = await PostService.getAllPost();
+        const { page, limit } = getPaginationParams(req);
+        const buffer = await PostService.getAllPost(page, limit);
         return res.status(200).json(buffer);
     } catch (error) {
         Logging.error(error);

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import LibreriaService from '../services/Libreria';
+import { getPaginationParams } from './Pagination';
 
 const createLibreria = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,7 +24,8 @@ const getLibreria = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAllLibrerias = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const librerias = await LibreriaService.getAllLibrerias();
+        const { page, limit } = getPaginationParams(req);
+        const librerias = await LibreriaService.getAllLibrerias(page, limit);
         return res.status(200).json(librerias);
     } catch (error) {
         return res.status(500).json({ error });

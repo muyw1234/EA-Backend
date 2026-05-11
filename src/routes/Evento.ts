@@ -101,9 +101,53 @@ router.get('/:eventoId', controller.getEvento);
  *   get:
  *     summary: Lista todos los eventos
  *     tags: [Eventos]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Numero de pagina a consultar
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *           example: 2
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Cantidad maxima de elementos por pagina
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *           example: 3
  *     responses:
  *       200:
  *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Evento'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       example: 25
+ *                     page:
+ *                       type: integer
+ *                       example: 2
+ *                     limit:
+ *                       type: integer
+ *                       example: 3
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 9
  */
 router.get('/', controller.getAllEventos);
 

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import EventoService from '../services/Evento';
+import { getPaginationParams } from './Pagination';
 
 const createEvento = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,7 +24,8 @@ const getEvento = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAllEventos = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const eventos = await EventoService.getAllEventos();
+        const { page, limit } = getPaginationParams(req);
+        const eventos = await EventoService.getAllEventos(page, limit);
         return res.status(200).json(eventos);
     } catch (error) {
         return res.status(500).json({ error });

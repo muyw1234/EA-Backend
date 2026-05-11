@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Usuario, { IUsuarioModel, IUsuario } from '../models/Usuario';
+import { getPagination, PaginatedResult } from './Pagination';
 
 const createUsuario = async (data: Partial<IUsuario>): Promise<IUsuarioModel> => {
     const usuario = new Usuario({
@@ -18,12 +19,35 @@ const getUsuarioByEmail = async (theEmail: string): Promise<IUsuarioModel | null
     return await Usuario.findOne({ email: theEmail });
 };
 
-const getAllUsuarios = async (): Promise<IUsuarioModel[]> => {
-    return await Usuario.find().populate('libros', 'title');
+const getAllUsuarios = async (page = 1, limit = 10): Promise<PaginatedResult<IUsuarioModel>> => {
+    const pagination = getPagination(page, limit);
+    const [data, total] = await Promise.all([Usuario.find().sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit).populate('libros', 'title'), Usuario.countDocuments()]);
+
+    return {
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        },
+        data
+    };
 };
 
-const getAllUsuarios_NOT_Deleted = async (): Promise<IUsuarioModel[]> => {
-    return await Usuario.find({ IsDeleted: false }).populate('libros', 'title');
+const getAllUsuarios_NOT_Deleted = async (page = 1, limit = 10): Promise<PaginatedResult<IUsuarioModel>> => {
+    const pagination = getPagination(page, limit);
+    const filter = { IsDeleted: false };
+    const [data, total] = await Promise.all([Usuario.find(filter).sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit).populate('libros', 'title'), Usuario.countDocuments(filter)]);
+
+    return {
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        },
+        data
+    };
 };
 
 const updateUsuario = async (usuarioId: string, data: Partial<IUsuario>): Promise<IUsuarioModel | null> => {

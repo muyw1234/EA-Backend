@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Libreria, {ILibreriaModel, ILibreria} from "../models/Libreria";
+import { getPagination, PaginatedResult } from "./Pagination";
 
 const createLibreria = async (data: Partial<ILibreria>): Promise<ILibreriaModel> => {
     const libreria = new Libreria({
@@ -13,8 +14,22 @@ const getLibreria = async (libreriaId: string): Promise<ILibreriaModel | null> =
     return await Libreria.findById(libreriaId);
 };
 
-const getAllLibrerias = async (): Promise<ILibreriaModel[]> => {
-    return await Libreria.find();
+const getAllLibrerias = async (page = 1, limit = 10): Promise<PaginatedResult<ILibreriaModel>> => {
+    const pagination = getPagination(page, limit);
+    const [data, total] = await Promise.all([
+        Libreria.find().sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit),
+        Libreria.countDocuments()
+    ]);
+
+    return {
+        data,
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        }
+    };
 };  
 const updateLibreria = async (libreriaId: string, data: Partial<ILibreria>): Promise<ILibreriaModel | null> => {
     const libreria = await Libreria.findById(libreriaId);

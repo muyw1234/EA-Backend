@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Evento, { IEventoModel, IEvento } from "../models/Evento";
+import { getPagination, PaginatedResult } from "./Pagination";
 
 const createEvento = async (data: Partial<IEvento>): Promise<IEventoModel> => {
     const evento = new Evento({
@@ -15,10 +16,27 @@ const getEvento = async (eventoId: string): Promise<IEventoModel | null> => {
         .populate('libreria'); // Populate the libreria field
 };
 
-const getAllEventos = async (): Promise<IEventoModel[]> => {
-    return await Evento
-        .find()
-        .populate('libreria'); // Populate the libreria field
+const getAllEventos = async (page = 1, limit = 10): Promise<PaginatedResult<IEventoModel>> => {
+    const pagination = getPagination(page, limit);
+    const [data, total] = await Promise.all([
+        Evento
+            .find()
+            .sort({ _id: 1 })
+            .skip(pagination.skip)
+            .limit(pagination.limit)
+            .populate('libreria'), // Populate the libreria field
+        Evento.countDocuments()
+    ]);
+
+    return {
+        data,
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        }
+    };
 };
 
 const updateEvento = async (eventoId: string, data: Partial<IEvento>): Promise<IEventoModel | null> => {

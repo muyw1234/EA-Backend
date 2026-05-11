@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Autor, { IAutorModel, IAutor } from '../models/Autor';
+import { getPagination, PaginatedResult } from './Pagination';
 
 // Crear un autor nuevo
 const createAutor = async (data: Partial<IAutor>): Promise<IAutorModel> => {
@@ -16,12 +17,41 @@ const getAutor = async (autorId: string): Promise<IAutorModel | null> => {
 };
 
 // Listar todos los autores
-const getAllAutores = async (): Promise<IAutorModel[]> => {
-    return await Autor.find();
+const getAllAutores = async (page = 1, limit = 10): Promise<PaginatedResult<IAutorModel>> => {
+    const pagination = getPagination(page, limit);
+    const [data, total] = await Promise.all([
+        Autor.find().sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit),
+        Autor.countDocuments()
+    ]);
+
+    return {
+        data,
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        }
+    };
 };
 
-const getAllAutores_NOT_Deleted = async (): Promise<IAutorModel[]> => {
-    return await Autor.find({ IsDeleted: false });
+const getAllAutores_NOT_Deleted = async (page = 1, limit = 10): Promise<PaginatedResult<IAutorModel>> => {
+    const pagination = getPagination(page, limit);
+    const filter = { IsDeleted: false };
+    const [data, total] = await Promise.all([
+        Autor.find(filter).sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit),
+        Autor.countDocuments(filter)
+    ]);
+
+    return {
+        data,
+        pagination: {
+            total,
+            page: pagination.page,
+            limit: pagination.limit,
+            totalPages: Math.ceil(total / pagination.limit)
+        }
+    };
 };
 
 // Actualizar los datos de un autor

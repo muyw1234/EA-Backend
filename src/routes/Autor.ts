@@ -78,15 +78,53 @@ router.post('/', ValidateJoi(Schemas.Autor.create), controller.createAutor);
  *     description: Recupera la lista completa de autores registrados.
  *     tags:
  *       - Autores
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Numero de pagina a consultar
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *           example: 2
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Cantidad maxima de elementos por pagina
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *           example: 3
  *     responses:
  *       200:
- *         description: Lista de autores obtenida correctamente
+ *         description: Lista paginada de autores obtenida correctamente
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Autor'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Autor'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       example: 25
+ *                     page:
+ *                       type: integer
+ *                       example: 2
+ *                     limit:
+ *                       type: integer
+ *                       example: 3
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 9
  */
 router.get('/all', controller.getAllAutores);
 
@@ -126,15 +164,53 @@ router.get('/:autorId', controller.getAutor);
  *     description: Recupera la lista de autores que no han sido eliminados lógicamente.
  *     tags:
  *       - Autores
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Numero de pagina a consultar
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *           example: 2
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Cantidad maxima de elementos por pagina
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *           example: 3
  *     responses:
  *       200:
- *         description: Lista de autores obtenida correctamente
+ *         description: Lista paginada de autores obtenida correctamente
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Autor'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Autor'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                       example: 25
+ *                     page:
+ *                       type: integer
+ *                       example: 2
+ *                     limit:
+ *                       type: integer
+ *                       example: 3
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 9
  */
 router.get('/', controller.getAllAutores_NOT_Deleted);
 

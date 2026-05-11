@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import LibroService from '../services/Libro';
 import Logging from '../library/Logging';
+import { getPaginationParams } from './Pagination';
 
 const createLibro = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -24,7 +25,8 @@ const getLibro = async (req: Request, res: Response, next: NextFunction) => {
 
 const getAllLibros = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const libros = await LibroService.getAllLibros();
+        const { page, limit } = getPaginationParams(req);
+        const libros = await LibroService.getAllLibros(page, limit);
         return res.status(200).json(libros);
     } catch (error) {
         return res.status(500).json({ error });
@@ -33,7 +35,8 @@ const getAllLibros = async (req: Request, res: Response, next: NextFunction) => 
 
 const getAllLibros_NOT_Deleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const libros = await LibroService.getAllLibros_NOT_Deleted();
+        const { page, limit } = getPaginationParams(req);
+        const libros = await LibroService.getAllLibros_NOT_Deleted(page, limit);
         return res.status(200).json(libros);
     } catch (error) {
         return res.status(500).json({ error });
