@@ -233,7 +233,73 @@ router.put('/:usuarioId', TokenValidation, isAdmin, ValidateJoi(Schemas.usuario.
  *         description: Usuario no encontrado
  */
 router.delete('/:usuarioId', TokenValidation, isAdmin, controller.deleteUsuario);
+
+/**
+ * @openapi
+ * /usuarios/permanent/{usuarioId}:
+ *   delete:
+ *     summary: Eliminar permanentemente un usuario por ID
+ *     description: Elimina de forma permanente un usuario existente a partir de su identificador.
+ *     tags:
+ *       - Usuarios
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         description: ID del usuario en MongoDB
+ *         schema:
+ *           type: string
+ *           example: "65f1c2a1b2c3d4e5f6789012"
+ *     responses:
+ *       204:
+ *         description: Usuario eliminado permanentemente
+ *       401:
+ *         description: No autorizado, token invalido o ausente
+ *       403:
+ *         description: Acceso denegado, se requiere rol de administrador
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.delete('/permanent/:usuarioId', TokenValidation, isAdmin, controller.permanentDeleteUsuario);
+
+/**
+ * @openapi
+ * /usuarios/restore/{usuarioId}:
+ *   put:
+ *     summary: Restaurar un usuario eliminado
+ *     description: Cambia el estado IsDeleted a false para que el usuario vuelva a estar operativo.
+ *     tags:
+ *       - Usuarios
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         description: ID del usuario en MongoDB
+ *         schema:
+ *           type: string
+ *           example: "65f1c2a1b2c3d4e5f6789012"
+ *     responses:
+ *       200:
+ *         description: Usuario restaurado correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Usuario'
+ *       401:
+ *         description: No autorizado, token invalido o ausente
+ *       403:
+ *         description: Acceso denegado, se requiere rol de administrador
+ *       404:
+ *         description: Usuario no encontrado
+ *       500:
+ *         description: Error interno del servidor
+ */
 router.put('/restore/:usuarioId', TokenValidation, isAdmin, controller.restoreUsuario);
 
 export default router;
