@@ -5,6 +5,7 @@ dotenv.config();
 const MONGO_URL = process.env.MONGO_URI || '';
 const SWAGGER_URL = process.env.SWAGGER_URL || 'localhost';
 const SERVER_PORT = process.env.SERVER_PORT ? Number(process.env.SERVER_PORT) : 1337;
+const SWAGGER_PORT = process.env.SWAGGER_PORT ? Number(process.env.SWAGGER_PORT) : 1337;
 
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET || 'LlaveSecretaDefault';
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'LlaveRefreshDefault';
@@ -23,6 +24,7 @@ export const config = {
     },
     server: {
         port: SERVER_PORT,
-        swaggerUrl: SWAGGER_URL
+        swaggerUrl: SWAGGER_URL,
+        swaggerPort: SWAGGER_PORT
     }
 };
