@@ -280,6 +280,6 @@ router.put('/restore/:libroId', controller.restoreLibro);
  *       404:
  *         description: The product with that id was not find.
  */
-router.get('/isbn/:isbn', controller.createLibroByIsbn);
+router.get('/isbn/:isbn', TokenValidation, controller.createLibroByIsbn);
 
 export default router;

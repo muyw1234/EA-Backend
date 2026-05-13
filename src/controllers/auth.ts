@@ -38,13 +38,13 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
 
         const user = await UsuarioService.getUsuarioByEmail(email);
         if (!user) {
-            Logging.warn(`Signin failed: User not found for email ${email}`);
+            Logging.warning(`Signin failed: User not found for email ${email}`);
             return res.status(400).json('Email or password is wrong');
         }
 
         const correctPassword: boolean = await user.validatePassword(password);
         if (!correctPassword) {
-            Logging.warn(`Signin failed: Incorrect password for email ${email}`);
+            Logging.warning(`Signin failed: Incorrect password for email ${email}`);
             return res.status(400).json('Incorrect password');
         }
 
@@ -61,7 +61,10 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
 // retorna la informacion del perfil
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const usuario = await Usuario.findById(req.userId).populate('libros');
+        const usuario = await Usuario.findById(req.userId).populate({
+            path: 'libros',
+            populate: { path: 'authors', select: 'fullName' }
+        });
         if (!usuario) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }

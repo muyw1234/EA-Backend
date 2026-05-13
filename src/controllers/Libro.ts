@@ -96,6 +96,9 @@ export async function createLibroByIsbn(req: Request, res: Response, next: NextF
         Logging.info(`Book found: ${libro}`);
         if (libro !== null) return res.status(200).json(libro);
         const libroSaved = await LibroService.createLibroByIsbn(isbn);
+        if (libroSaved && req.userId) {
+            await Usuario.findByIdAndUpdate(req.userId, { $push: { libros: (libroSaved as any)._id } });
+        }
         return res.status(201).json(libroSaved);
     } catch (error) {
         return res.status(500).json({ error });
