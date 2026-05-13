@@ -2,10 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import LibroService from '../services/Libro';
 import Logging from '../library/Logging';
+import Usuario from '../models/Usuario';
 
 const createLibro = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const savedLibro = await LibroService.createLibro(req.body);
+        if (savedLibro && req.userId) {
+            await Usuario.findByIdAndUpdate(req.userId, { $push: { libros: (savedLibro as any)._id } });
+        }
         return res.status(201).json(savedLibro);
     } catch (error) {
         return res.status(500).json({ error });

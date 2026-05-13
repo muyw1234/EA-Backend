@@ -17,8 +17,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
             password: req.body.password
         });
 
-        // encriptamos
-        user.password = await user.encryptPassword(user.password);
+
 
         const savedUser = await user.save();
         const token: string = jwt.sign({ _id: savedUser._id }, config.jwt.accessSecret);
@@ -34,12 +33,23 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
 
 export const signin = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await UsuarioService.getUsuarioByEmail(req.body.email);
-        if (!user) return res.status(400).json('Email or password is wrong');
-        const correctPassword: boolean = await user.validatePassword(req.body.password);
-        if (!correctPassword) return res.status(400).json('Incorrect password');
+        const { email, password } = req.body;
+        Logging.info(`Attempting signin for email: ${email}`);
+
+        const user = await UsuarioService.getUsuarioByEmail(email);
+        if (!user) {
+            Logging.warn(`Signin failed: User not found for email ${email}`);
+            return res.status(400).json('Email or password is wrong');
+        }
+
+        const correctPassword: boolean = await user.validatePassword(password);
+        if (!correctPassword) {
+            Logging.warn(`Signin failed: Incorrect password for email ${email}`);
+            return res.status(400).json('Incorrect password');
+        }
+
         const token: string = jwt.sign({ _id: user._id } as IPayload, config.jwt.accessSecret, {
-            expiresIn: 60 * 15 // tiempo de expiracion en segundos, pero poniendo config.jwt.expiresIn siempre me da errores
+            expiresIn: 60 * 15 // tiempo de expiracion en segundos
         });
         return res.header('auth-token', token).status(200).json({ user, token });
     } catch (error) {

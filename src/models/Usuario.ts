@@ -7,7 +7,7 @@ export interface IUsuario {
     password: string;
     libros: mongoose.Types.ObjectId[] | string[]; // Es un array porque claro, un usuario puede tener mas de un libro
     IsDeleted?: boolean;
-    encryptPassword(password: string): Promise<string>;
+
     validatePassword(password: string): Promise<boolean>;
 }
 
@@ -27,26 +27,22 @@ const UsuarioSchema: Schema = new Schema(
     }
 );
 
-// Esto hashea solamenet en la ruta de sign up.
-UsuarioSchema.methods.encryptPassword = async function (password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10); // el algoritmo se aplica 10 veces
-    return bcrypt.hash(password, salt);
-};
+
 
 // Esto hashea la contraseña independientemente de que ruta tomas, pero con lo anterior ya nos vale.
-// UsuarioSchema.pre<IUsuarioModel>('save', async function (next) {
-//     if (!this.isModified('password')) {
-//         return next();
-//     }
+UsuarioSchema.pre<IUsuarioModel>('save', async function (next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
 
-//     try {
-//         const salt = await bcrypt.genSalt(10);
-//         this.password = await bcrypt.hash(this.password, salt);
-//         next();
-//     } catch (error: any) {
-//         next(error);
-//     }
-// });
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error: any) {
+        next(error);
+    }
+});
 
 UsuarioSchema.methods.validatePassword = async function (password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password);

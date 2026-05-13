@@ -1,6 +1,7 @@
 import express from 'express';
 import controller from '../controllers/Libro';
 import { Schemas, ValidateJoi } from '../middleware/Joi';
+import { TokenValidation } from '../middleware/verifyToken';
 
 const router = express.Router();
 
@@ -93,7 +94,7 @@ const router = express.Router();
  *       422:
  *         description: Error de validación en los datos enviados
  */
-router.post('/', ValidateJoi(Schemas.libro.create), controller.createLibro);
+router.post('/', TokenValidation, ValidateJoi(Schemas.libro.create), controller.createLibro);
 
 /**
  * @openapi
