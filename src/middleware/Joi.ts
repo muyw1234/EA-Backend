@@ -90,17 +90,23 @@ export const Schemas = {
             title: Joi.string().required(),
             description: Joi.string().required(),
             date: Joi.date().required(),
-            libreria: Joi.string()
-                .regex(/^[0-9a-fA-F]{24}$/)
-                .required()
+            direccionExacta: Joi.string().required(),
+            location: Joi.object({
+                type: Joi.string().valid('Point').required(),
+                coordinates: Joi.array().items(Joi.number()).length(2).required()
+            }).required(),
+            IsDeleted: Joi.boolean().optional()
         }),
         update: Joi.object<IEvento>({
-            title: Joi.string().required(),
-            description: Joi.string().required(),
-            date: Joi.date().required(),
-            libreria: Joi.string()
-                .regex(/^[0-9a-fA-F]{24}$/)
-                .required()
+            title: Joi.string().optional(),
+            description: Joi.string().optional(),
+            date: Joi.date().optional(),
+            direccionExacta: Joi.string().optional(),
+            location: Joi.object({
+                type: Joi.string().valid('Point').required(),
+                coordinates: Joi.array().items(Joi.number()).length(2).required()
+            }).optional(),
+            IsDeleted: Joi.boolean().optional()
         })
     },
     chat: {

@@ -12,6 +12,25 @@ const router = express.Router();
  *
  * components:
  *   schemas:
+ *     Point:
+ *       type: object
+ *       required:
+ *         - type
+ *         - coordinates
+ *       properties:
+ *         type:
+ *           type: string
+ *           enum: [Point]
+ *           example: "Point"
+ *         coordinates:
+ *           type: array
+ *           minItems: 2
+ *           maxItems: 2
+ *           items:
+ *             type: number
+ *           example: [2.15525, 41.38048]
+ *           description: "[Longitud, Latitud] según el estándar GeoJSON de MongoDB"
+ *
  *     Evento:
  *       type: object
  *       properties:
@@ -28,17 +47,29 @@ const router = express.Router();
  *           type: string
  *           format: date-time
  *           example: "2026-03-12T10:00:00.000Z"
- *         libreria:
+ *         location:
+ *           $ref: '#/components/schemas/Point'
+ *         direccionExacta:
  *           type: string
- *           description: ID de la librería que aloja el evento
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *           example: "Calle Gran Vía 45, Barcelona"
+ *         IsDeleted:
+ *           type: boolean
+ *           default: false
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *
  *     EventoCreateUpdate:
  *       type: object
  *       required:
  *         - title
  *         - description
  *         - date
- *         - libreria
+ *         - location
+ *         - direccionExacta
  *       properties:
  *         title:
  *           type: string
@@ -50,50 +81,12 @@ const router = express.Router();
  *           type: string
  *           format: date-time
  *           example: "2026-03-12T10:00:00.000Z"
- *         libreria:
+ *         location:
+ *           $ref: '#/components/schemas/Point'
+ *         direccionExacta:
  *           type: string
- *           example: "65f1c2a1b2c3d4e5f6789013"
+ *           example: "Calle Gran Vía 45, Barcelona"
  */
-
-/**
- * @openapi
- * /eventos:
- *   post:
- *     summary: Crea un evento
- *     tags: [Eventos]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/EventoCreateUpdate'
- *     responses:
- *       201:
- *         description: Creado
- *       422:
- *         description: Validación fallida
- */
-router.post('/', ValidateJoi(Schemas.evento.create), controller.createEvento);
-
-/**
- * @openapi
- * /eventos/{eventoId}:
- *   get:
- *     summary: Obtiene un evento por ID
- *     tags: [Eventos]
- *     parameters:
- *       - in: path
- *         name: eventoId
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: OK
- *       404:
- *         description: No encontrado
- */
-router.get('/:eventoId', controller.getEvento);
 
 /**
  * @openapi
@@ -148,12 +141,83 @@ router.get('/:eventoId', controller.getEvento);
  *                     totalPages:
  *                       type: integer
  *                       example: 9
+ *
+ *   post:
+ *     summary: Crea un evento
+ *     tags: [Eventos]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EventoCreateUpdate'
+ *     responses:
+ *       201:
+ *         description: Creado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Evento'
+ *       422:
+ *         description: Validación fallida
  */
 router.get('/', controller.getAllEventos);
+
+router.post('/', ValidateJoi(Schemas.evento.create), controller.createEvento);
+
+/**
+ * @openapi
+ * /eventos/exact-location:
+ *   get:
+ *     summary: Obtiene eventos en una coordenada exacta
+ *     tags: [Eventos]
+ *     parameters:
+ *       - in: query
+ *         name: lng
+ *         required: true
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: lat
+ *         required: true
+ *         schema:
+ *           type: number
+ *     responses:
+ *       200:
+ *         description: Lista de eventos en la coordenada exacta
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Evento'
+ *       400:
+ *         description: Coordenadas faltantes o inválidas
+ */
+router.get('/exact-location', controller.getEventosByExactLocation);
 
 /**
  * @openapi
  * /eventos/{eventoId}:
+ *   get:
+ *     summary: Obtiene un evento por ID
+ *     tags: [Eventos]
+ *     parameters:
+ *       - in: path
+ *         name: eventoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Evento'
+ *       404:
+ *         description: No encontrado
+ *
  *   put:
  *     summary: Actualiza un evento por ID
  *     tags: [Eventos]
@@ -172,14 +236,13 @@ router.get('/', controller.getAllEventos);
  *     responses:
  *       201:
  *         description: Actualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Evento'
  *       404:
  *         description: No encontrado
- */
-router.put('/:eventoId', ValidateJoi(Schemas.evento.update), controller.updateEvento);
-
-/**
- * @openapi
- * /eventos/{eventoId}:
+ *
  *   delete:
  *     summary: Elimina un evento por ID
  *     tags: [Eventos]
@@ -195,6 +258,10 @@ router.put('/:eventoId', ValidateJoi(Schemas.evento.update), controller.updateEv
  *       404:
  *         description: No encontrado
  */
+router.get('/:eventoId', controller.getEvento);
+
+router.put('/:eventoId', ValidateJoi(Schemas.evento.update), controller.updateEvento);
+
 router.delete('/:eventoId', controller.deleteEvento);
 
 /**
@@ -203,8 +270,8 @@ router.delete('/:eventoId', controller.deleteEvento);
  *   post:
  *     summary: Restaura un evento eliminado por ID (soft delete)
  *     tags: [Eventos]
- *     parameters:      
- *       - in: path  
+ *     parameters:
+ *       - in: path
  *         name: eventoId
  *         required: true
  *         schema:
@@ -218,4 +285,5 @@ router.delete('/:eventoId', controller.deleteEvento);
  *         description: Error del servidor
  */
 router.post('/:eventoId/restore', controller.restoreEvento);
+
 export default router;
