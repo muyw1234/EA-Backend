@@ -5,6 +5,7 @@ import Usuario, { IUsuarioModel } from '../models/Usuario';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import { getPaginationParams } from './Pagination';
+import Logging from '../library/Logging';
 
 const createUsuario = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -85,4 +86,18 @@ const restoreUsuario = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-export default { createUsuario, getUsuario, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario };
+async function searchUsuarioByName(req: Request, res: Response, next: NextFunction) {
+    const { page, limit } = getPaginationParams(req);
+    const term: string = req.query.term as string;
+    Logging.info(`Searching the term: ${term}`);
+
+    try {
+        const usuarios = await UsuarioService.searchUsuarioByName(term, page, limit);
+        if (usuarios.length === 0) return res.status(404).json({ message: `The term ${term} was not found` });
+        return res.status(200).json(usuarios);
+    } catch (error) {
+        return res.status(400).json({ error });
+    }
+}
+
+export default { createUsuario, getUsuario, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario, searchUsuarioByName };

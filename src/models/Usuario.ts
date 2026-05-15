@@ -54,4 +54,6 @@ UsuarioSchema.methods.validatePassword = async function (password: string): Prom
     return await bcrypt.compare(password, this.password);
 };
 
+UsuarioSchema.index({ name: 'text', email: 'text' });
+
 export default mongoose.model<IUsuarioModel>('Usuario', UsuarioSchema);

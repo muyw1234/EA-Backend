@@ -165,6 +165,58 @@ router.get('/all', controller.getAllUsuarios);
 
 /**
  * @openapi
+ * /usuarios/search:
+ *   get:
+ *     summary: Buscar usuarios por nombre
+ *     description: Retorna una lista de usuarios cuyo nombre coincida parcial o totalmente con el término de búsqueda. Incluye paginación.
+ *     tags:
+ *       - Usuarios
+ *     parameters:
+ *       - in: query
+ *         name: term
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Término o palabra clave para buscar en el nombre del usuario.
+ *         example: "Judit"
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número de página para la paginación.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Cantidad de resultados por página.
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios encontrados exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Usuario'
+ *       400:
+ *         description: Error en la solicitud o en la base de datos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   description: Detalles del error capturado.
+ *       404:
+ *         description: No se encontraron usuarios que coincidan con el término de búsqueda.
+ */
+router.get('/search', controller.searchUsuarioByName);
+
+/**
+ * @openapi
  * /usuarios/{usuarioId}:
  *   get:
  *     summary: Obtener un usuario por ID

@@ -71,4 +71,10 @@ const restoreUsuario = async (usuarioId: string): Promise<IUsuarioModel | null> 
     return await Usuario.findByIdAndUpdate(usuarioId, { IsDeleted: false }, { new: true });
 };
 
-export default { createUsuario, getUsuario, getUsuarioByEmail, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario };
+async function searchUsuarioByName(term: string, page = 1, limit = 10) {
+    return await Usuario.find({ $text: { $search: term } })
+        .limit(limit)
+        .skip((page - 1) * limit);
+}
+
+export default { createUsuario, getUsuario, getUsuarioByEmail, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario, searchUsuarioByName };

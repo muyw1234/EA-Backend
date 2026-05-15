@@ -79,7 +79,7 @@ const deleteLibro = async (req: Request, res: Response, next: NextFunction) => {
 
 const restoreLibro = async (req: Request, res: Response, next: NextFunction) => {
     const libroId = req.params.libroId;
-    try {        
+    try {
         const libro = await LibroService.restoreLibro(libroId);
         return libro ? res.status(200).json(libro) : res.status(404).json({ message: 'not found' });
     } catch (error) {
@@ -101,4 +101,18 @@ export async function createLibroByIsbn(req: Request, res: Response, next: NextF
     }
 }
 
-export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn };
+async function searchLibroByTitle(req: Request, res: Response, next: NextFunction) {
+    const { page, limit } = getPaginationParams(req);
+    const term: string = req.query.term as string;
+    Logging.info(`Searching the term: ${term}`);
+
+    try {
+        const libros = await LibroService.searchLibroByTitle(term, page, limit);
+        if (libros.length === 0) return res.status(404).json({ message: `The term ${term} was not found` });
+        return res.status(200).json(libros);
+    } catch (error) {
+        return res.status(400).json({ error });
+    }
+}
+
+export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn, searchLibroByTitle };

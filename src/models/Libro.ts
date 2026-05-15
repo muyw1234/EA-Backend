@@ -1,10 +1,11 @@
 import { required } from 'joi';
 import mongoose, { Document, Schema } from 'mongoose';
+import Post from './Post';
 
 export interface ILibro {
     isbn: string;
     title: string;
-    authors?: mongoose.Types.ObjectId[] | String[]; 
+    authors?: mongoose.Types.ObjectId[] | String[];
     type: 'VENTA' | 'ALQUILER';
     precio: number;
     estado: string;
@@ -28,5 +29,7 @@ const LibroSchema: Schema = new Schema(
         versionKey: false
     }
 );
+
+LibroSchema.index({ title: 'text' });
 
 export default mongoose.model<ILibroModel>('Libro', LibroSchema);

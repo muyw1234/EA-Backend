@@ -155,6 +155,59 @@ router.post('/', ValidateJoi(Schemas.libro.create), controller.createLibro);
  */
 router.get('/all', controller.getAllLibros);
 
+// Segun Gemini, esto debe estar arriba para que no colisione con la busqueda por id
+/**
+ * @openapi
+ * /libros/search:
+ *   get:
+ *     summary: Buscar libros por título
+ *     description: Retorna una lista de libros cuyo título coincida parcial o totalmente con el término de búsqueda. Incluye paginación.
+ *     tags:
+ *       - Libros
+ *     parameters:
+ *       - in: query
+ *         name: term
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Término o palabra clave para buscar en el título del libro.
+ *         example: "Clean"
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número de página para la paginación.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Cantidad de resultados por página.
+ *     responses:
+ *       200:
+ *         description: Lista de libros encontrados exitosamente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Libro'
+ *       400:
+ *         description: Error en la solicitud o en la base de datos.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   description: Detalles del error capturado.
+ *       404:
+ *         description: No se encontraron libros que coincidan con el término de búsqueda.
+ */
+router.get('/search', controller.searchLibroByTitle);
+
 /**
  * @openapi
  * /libros/{libroId}:

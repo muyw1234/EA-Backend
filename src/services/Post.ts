@@ -18,15 +18,7 @@ async function getPostById(id: string): Promise<IPost | null> {
 
 async function getAllPost(page = 1, limit = 10): Promise<PaginatedResult<IPost>> {
     const pagination = getPagination(page, limit);
-    const [data, total] = await Promise.all([
-        Post.find()
-            .select('-__v')
-            .populate('bookId')
-            .sort({ _id: 1 })
-            .skip(pagination.skip)
-            .limit(pagination.limit),
-        Post.countDocuments()
-    ]);
+    const [data, total] = await Promise.all([Post.find().select('-__v').populate('bookId').sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit), Post.countDocuments()]);
 
     return {
         data,
@@ -64,4 +56,10 @@ async function createPostByIsbn(isbn: string, data: Partial<IPost>): Promise<IPo
     return buffer.save();
 }
 
-export default { createPost, getPostById, getAllPost, updatePost, deletePost, createPostByIsbn };
+async function searchPostByterm(term: string, page = 1, limit = 10): Promise<IPost[] | []> {
+    return await Post.find({ $text: { $search: term } })
+        .limit(limit)
+        .skip((page - 1) * limit);
+}
+
+export default { createPost, getPostById, getAllPost, updatePost, deletePost, createPostByIsbn, searchPostByterm };

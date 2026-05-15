@@ -89,4 +89,18 @@ async function deletePost(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-export default { createPost, createPostByIsbn, readPost, readAllPost, updatePost, deletePost };
+async function searchPostByTerm(req: Request, res: Response, next: NextFunction) {
+    const { page, limit } = getPaginationParams(req);
+    const term: string = req.query.term as string;
+    Logging.info(`Searching the term: ${term}`);
+
+    try {
+        const posts = await PostService.searchPostByterm(term, page, limit);
+        if (posts.length === 0) return res.status(404).json({ message: `The term ${term} was not found` });
+        return res.status(200).json(posts);
+    } catch (error) {
+        return res.status(400).json({ error });
+    }
+}
+
+export default { createPost, createPostByIsbn, readPost, readAllPost, updatePost, deletePost, searchPostByTerm };
