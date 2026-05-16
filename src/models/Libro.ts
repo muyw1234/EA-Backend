@@ -9,6 +9,7 @@ export interface ILibro {
     type: 'VENTA' | 'ALQUILER';
     precio: number;
     estado: string;
+    owner?: mongoose.Types.ObjectId | string;
     IsDeleted?: boolean;
 }
 
@@ -22,6 +23,7 @@ const LibroSchema: Schema = new Schema(
         type: { type: String, enum: ['VENTA', 'ALQUILER'], required: true },
         precio: { type: Number, required: true },
         estado: { type: String, required: true },
+        owner: { type: Schema.Types.ObjectId, ref: 'Usuario', required: false },
         IsDeleted: { type: Boolean, default: false }
     },
     {

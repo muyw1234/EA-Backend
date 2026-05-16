@@ -55,8 +55,10 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
         if (!usuario) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
+        Logging.info(`Profile for ${usuario.email} requested. Books count: ${usuario.libros.length}`);
         return res.status(200).json(usuario);
     } catch (error) {
+        Logging.error(`Error in profile: ${error}`);
         return res.status(500).json({ error });
     }
 };
