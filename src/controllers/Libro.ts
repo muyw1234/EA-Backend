@@ -1,14 +1,35 @@
 import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import LibroService from '../services/Libro';
+import Usuario from '../models/Usuario';
 import Logging from '../library/Logging';
 import { getPaginationParams } from './Pagination';
 
 const createLibro = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const userId = (req as any).userId;
+        
+        // Add owner to the request body before creating the book
+        if (userId) {
+            req.body.owner = userId;
+        }
+
         const savedLibro = await LibroService.createLibro(req.body);
+        
+        if (savedLibro && userId) {
+            const libroId = (savedLibro as any)._id;
+            // Update the user's book list
+            await Usuario.findByIdAndUpdate(userId, {
+                $push: { libros: libroId }
+            });
+            Logging.info(`Book ${libroId} linked to user ${userId}`);
+        } else {
+            Logging.warning('Book created but could not link to user (savedLibro or userId missing)');
+        }
+        
         return res.status(201).json(savedLibro);
     } catch (error) {
+        Logging.error(`Error in createLibro: ${error}`);
         return res.status(500).json({ error });
     }
 };
