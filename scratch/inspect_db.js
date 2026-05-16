@@ -1,29 +1,40 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const path = require('path');
 
-dotenv.config({ path: path.join(__dirname, '../.env') });
+dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/vivebook_DB';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/vivebook';
 
-async function inspectDB() {
+async function inspect() {
     try {
         await mongoose.connect(MONGO_URI);
         console.log('Connected to MongoDB');
-        
-        const books = await mongoose.connection.db.collection('libros').find({}).toArray();
-        console.log(`Total books: ${books.length}`);
-        books.forEach(b => console.log(`Book: ${b.title} (${b._id}), owner: ${b.owner}`));
-        
+
         const users = await mongoose.connection.db.collection('usuarios').find({}).toArray();
-        console.log(`Total users: ${users.length}`);
-        users.forEach(u => console.log(`User: ${u.email} (${u._id}), libros: ${JSON.stringify(u.libros)}`));
-        
-    } catch (error) {
-        console.error('Error inspecting database:', error);
-    } finally {
+        console.log('\n--- USERS ---');
+        users.forEach(u => {
+            console.log(`User: ${u.name} (${u.email}) - ID: ${u._id}`);
+            console.log(`  Bought Libros: ${u.boughtLibros ? u.boughtLibros.length : 0}`);
+            console.log(`  Rented Libros: ${u.rentedLibros ? u.rentedLibros.length : 0}`);
+        });
+
+        const valoraciones = await mongoose.connection.db.collection('valoracions').find({}).toArray();
+        console.log('\n--- VALORACIONES ---');
+        console.log(`Total Valoraciones: ${valoraciones.length}`);
+        valoraciones.forEach(v => {
+            console.log(`From: ${v.usuarioAutor} To: ${v.usuarioValorado} - Score: ${v.puntuacion} - Book: ${v.libro}`);
+        });
+
+        const libros = await mongoose.connection.db.collection('libros').find({}).toArray();
+        console.log('\n--- LIBROS ---');
+        libros.forEach(l => {
+            console.log(`Book: ${l.title} - Owner: ${l.owner} - Deleted: ${l.IsDeleted} - ID: ${l._id}`);
+        });
+
         await mongoose.disconnect();
+    } catch (error) {
+        console.error('Error:', error);
     }
 }
 
-inspectDB();
+inspect();
