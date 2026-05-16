@@ -36,6 +36,6 @@ const LibroSchema: Schema = new Schema(
     }
 );
 
-LibroSchema.index({ title: 'text' });
+LibroSchema.index({ title: 'text', isbn: 'text' });
 
 export default mongoose.model<ILibroModel>('Libro', LibroSchema);
