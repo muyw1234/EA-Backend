@@ -410,5 +410,7 @@ router.put('/restore/:libroId', controller.restoreLibro);
  *         description: The product with that id was not find.
  */
 router.get('/isbn/:isbn', controller.createLibroByIsbn);
+router.post('/buy/:libroId', TokenValidation, controller.buyLibro);
+router.post('/rent/:libroId', TokenValidation, controller.rentLibro);
 
 export default router;

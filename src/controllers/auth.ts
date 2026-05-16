@@ -51,7 +51,10 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
 // retorna la informacion del perfil
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const usuario = await Usuario.findById(req.userId).populate('libros');
+        const usuario = await Usuario.findById(req.userId)
+            .populate('libros')
+            .populate('boughtLibros')
+            .populate('rentedLibros');
         if (!usuario) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }

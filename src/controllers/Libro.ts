@@ -139,4 +139,46 @@ async function searchLibroByTitle(req: Request, res: Response, next: NextFunctio
     }
 }
 
-export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn, searchLibroByTitle };
+const buyLibro = async (req: Request, res: Response, next: NextFunction) => {
+    const libroId = req.params.libroId;
+    const userId = req.userId;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const success = await LibroService.buyLibro(libroId, userId);
+        if (success) {
+            return res.status(200).json({ message: 'Libro comprado con éxito' });
+        } else {
+            return res.status(400).json({ message: 'No se pudo completar la compra' });
+        }
+    } catch (error) {
+        Logging.error(`Error in buyLibro controller: ${error}`);
+        return res.status(500).json({ error });
+    }
+};
+
+const rentLibro = async (req: Request, res: Response, next: NextFunction) => {
+    const libroId = req.params.libroId;
+    const userId = req.userId;
+
+    if (!userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const success = await LibroService.rentLibro(libroId, userId);
+        if (success) {
+            return res.status(200).json({ message: 'Libro alquilado con éxito' });
+        } else {
+            return res.status(400).json({ message: 'No se pudo completar el alquiler' });
+        }
+    } catch (error) {
+        Logging.error(`Error in rentLibro controller: ${error}`);
+        return res.status(500).json({ error });
+    }
+};
+
+export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn, searchLibroByTitle, buyLibro, rentLibro };

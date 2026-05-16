@@ -7,6 +7,8 @@ export interface IUsuario {
     password: string;
     rol: 'Admin' | 'User';
     libros: mongoose.Types.ObjectId[] | string[]; // Es un array porque claro, un usuario puede tener mas de un libro
+    boughtLibros: mongoose.Types.ObjectId[] | string[];
+    rentedLibros: mongoose.Types.ObjectId[] | string[];
     IsDeleted?: boolean;
     encryptPassword(password: string): Promise<string>;
     validatePassword(password: string): Promise<boolean>;
@@ -21,6 +23,8 @@ const UsuarioSchema: Schema = new Schema(
         password: { type: String, required: true },
         rol: { type: String, enum: ['Admin', 'User'], default: 'User' },
         libros: [{ type: Schema.Types.ObjectId, required: false, ref: 'Libro' }],
+        boughtLibros: [{ type: Schema.Types.ObjectId, required: false, ref: 'Libro' }],
+        rentedLibros: [{ type: Schema.Types.ObjectId, required: false, ref: 'Libro' }],
         IsDeleted: { type: Boolean, default: false }
     },
     {
