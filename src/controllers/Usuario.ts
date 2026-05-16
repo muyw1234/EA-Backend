@@ -18,6 +18,9 @@ const createUsuario = async (req: Request, res: Response, next: NextFunction) =>
 
 const getUsuario = async (req: Request, res: Response, next: NextFunction) => {
     const usuarioId = req.params.usuarioId;
+    if (!mongoose.Types.ObjectId.isValid(usuarioId)) {
+        return res.status(400).json({ message: 'Invalid user ID format' });
+    }
     try {
         const usuario = await UsuarioService.getUsuario(usuarioId);
         return usuario ? res.status(200).json(usuario) : res.status(404).json({ message: 'not found' });
@@ -48,6 +51,9 @@ const getAllUsuarios_NOT_Deleted = async (req: Request, res: Response, next: Nex
 
 const updateUsuario = async (req: Request, res: Response, next: NextFunction) => {
     const usuarioId = req.params.usuarioId;
+    if (!mongoose.Types.ObjectId.isValid(usuarioId)) {
+        return res.status(400).json({ message: 'Invalid user ID format' });
+    }
     try {
         const updatedUsuario = await UsuarioService.updateUsuario(usuarioId, req.body);
         return updatedUsuario ? res.status(200).json(updatedUsuario) : res.status(404).json({ message: 'not found' });

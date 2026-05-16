@@ -51,18 +51,36 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
 // retorna la informacion del perfil
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        if (!req.userId) {
+            return res.status(401).json({ message: 'No userId found in request' });
+        }
+
         const usuario = await Usuario.findById(req.userId)
             .populate('libros')
-            .populate('boughtLibros')
-            .populate('rentedLibros');
+            .populate({
+                path: 'boughtLibros',
+                populate: { path: 'owner', select: '_id name' }
+            })
+            .populate({
+                path: 'rentedLibros',
+                populate: { path: 'owner', select: '_id name' }
+            });
+
         if (!usuario) {
+            Logging.warning(`Profile requested for non-existent user ID: ${req.userId}`);
             return res.status(404).json({ message: 'Usuario no encontrado' });
         }
-        Logging.info(`Profile for ${usuario.email} requested. Books count: ${usuario.libros.length}`);
+
+        const librosCount = Array.isArray(usuario.libros) ? usuario.libros.length : 0;
+        Logging.info(`Profile for ${usuario.email} requested. Books count: ${librosCount}`);
+        
         return res.status(200).json(usuario);
-    } catch (error) {
-        Logging.error(`Error in profile: ${error}`);
-        return res.status(500).json({ error });
+    } catch (error: any) {
+        Logging.error(`Error in profile controller: ${error}`);
+        return res.status(500).json({ 
+            message: 'Error al obtener el perfil',
+            error: error.message 
+        });
     }
 };
 //#endregion Autenticacion

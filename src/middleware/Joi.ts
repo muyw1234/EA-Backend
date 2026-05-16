@@ -33,6 +33,7 @@ export const Schemas = {
             password: Joi.string().min(6).required(),
             rol: Joi.string().valid('Admin', 'User').default('User'),
             libros: Joi.array().items(Joi.string().optional()),
+            description: Joi.string().optional().allow(''),
             IsDeleted: Joi.boolean().optional()
         }),
         update: Joi.object<IUsuario>({
@@ -41,6 +42,7 @@ export const Schemas = {
             password: Joi.string().min(6).optional(),
             rol: Joi.string().valid('Admin', 'User').optional(),
             libros: Joi.array().items(Joi.string().optional()),
+            description: Joi.string().optional().allow(''),
             IsDeleted: Joi.boolean().optional()
         })
     },
@@ -162,5 +164,14 @@ export const Schemas = {
     signIn: Joi.object<IUsuario>({
         email: Joi.string().email().required(),
         password: Joi.string().min(6).required()
-    })
+    }),
+    valoracion: {
+        create: Joi.object({
+            usuarioValorado: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+            libro: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+            tipoOperacion: Joi.string().valid('VENTA', 'ALQUILER').required(),
+            puntuacion: Joi.number().min(1).max(5).required(),
+            comentario: Joi.string().optional().allow('')
+        })
+    }
 };
