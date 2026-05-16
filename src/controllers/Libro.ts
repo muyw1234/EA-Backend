@@ -57,7 +57,8 @@ const getAllLibros = async (req: Request, res: Response, next: NextFunction) => 
 const getAllLibros_NOT_Deleted = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit } = getPaginationParams(req);
-        const libros = await LibroService.getAllLibros_NOT_Deleted(page, limit);
+        const userId = req.userId; // Provided by OptionalTokenValidation or TokenValidation
+        const libros = await LibroService.getAllLibros_NOT_Deleted(page, limit, userId);
         return res.status(200).json(libros);
     } catch (error) {
         return res.status(500).json({ error });
@@ -66,8 +67,9 @@ const getAllLibros_NOT_Deleted = async (req: Request, res: Response, next: NextF
 
 const getLibrosByType = async (req: Request, res: Response, next: NextFunction) => {
     const type = req.params.type;
+    const userId = req.userId;
     try {
-        const libros = await LibroService.getLibrosByType(type);
+        const libros = await LibroService.getLibrosByType(type, userId);
         return res.status(200).json(libros);
     } catch (error) {
         return res.status(500).json({ error });
@@ -125,10 +127,11 @@ export async function createLibroByIsbn(req: Request, res: Response, next: NextF
 async function searchLibroByTitle(req: Request, res: Response, next: NextFunction) {
     const { page, limit } = getPaginationParams(req);
     const term: string = req.query.term as string;
-    Logging.info(`Searching the term: ${term}`);
+    const userId = req.userId;
+    Logging.info(`Searching the term: ${term} for user: ${userId || 'anonymous'}`);
 
     try {
-        const libros = await LibroService.searchLibroByTitle(term, page, limit);
+        const libros = await LibroService.searchLibroByTitle(term, page, limit, userId);
         if (libros.length === 0) return res.status(404).json({ message: `The term ${term} was not found` });
         return res.status(200).json(libros);
     } catch (error) {

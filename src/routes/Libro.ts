@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/Libro';
 import { Schemas, ValidateJoi } from '../middleware/Joi';
-import { TokenValidation } from '../middleware/verifyToken';
+import { TokenValidation, OptionalTokenValidation } from '../middleware/verifyToken';
 
 const router = express.Router();
 
@@ -207,7 +207,7 @@ router.get('/all', controller.getAllLibros);
  *       404:
  *         description: No se encontraron libros que coincidan con el término de búsqueda.
  */
-router.get('/search', controller.searchLibroByTitle);
+router.get('/search', OptionalTokenValidation, controller.searchLibroByTitle);
 
 /**
  * @openapi
@@ -293,8 +293,8 @@ router.get('/:libroId', controller.getLibro);
  *                       type: integer
  *                       example: 9
  */
-router.get('/', controller.getAllLibros_NOT_Deleted);
-router.get('/type/:type', controller.getLibrosByType);
+router.get('/', OptionalTokenValidation, controller.getAllLibros_NOT_Deleted);
+router.get('/type/:type', OptionalTokenValidation, controller.getLibrosByType);
 
 /**
  * @openapi

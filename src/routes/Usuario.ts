@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/Usuario';
 import { Schemas, ValidateJoi } from '../middleware/Joi';
-import { isAdmin } from '../middleware/AuthRole';
+import { isAdmin, isSelfOrAdmin } from '../middleware/AuthRole';
 import { TokenValidation, encryptPassword } from '../middleware/verifyToken';
 const router = express.Router();
 
@@ -336,7 +336,7 @@ router.get('/', TokenValidation, controller.getAllUsuarios_NOT_Deleted);
  *       422:
  *         description: Error de validación en los datos enviados
  */
-router.put('/:usuarioId', TokenValidation, isAdmin, ValidateJoi(Schemas.usuario.update), controller.updateUsuario);
+router.put('/:usuarioId', TokenValidation, isSelfOrAdmin, ValidateJoi(Schemas.usuario.update), controller.updateUsuario);
 
 /**
  * @openapi
