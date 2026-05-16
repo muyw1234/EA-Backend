@@ -69,9 +69,14 @@ export async function getAllLibros(page = 1, limit = 10): Promise<PaginatedResul
     };
 }
 
-export async function getAllLibros_NOT_Deleted(page = 1, limit = 10): Promise<PaginatedResult<ILibro>> {
+export async function getAllLibros_NOT_Deleted(page = 1, limit = 10, excludeOwnerId?: string): Promise<PaginatedResult<ILibro>> {
     const pagination = getPagination(page, limit);
-    const filter = { IsDeleted: false };
+    const filter: any = { IsDeleted: false };
+    
+    if (excludeOwnerId && mongoose.Types.ObjectId.isValid(excludeOwnerId)) {
+        filter.owner = { $ne: new mongoose.Types.ObjectId(excludeOwnerId) };
+    }
+    
     const [data, total] = await Promise.all([Libro.find(filter).sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit).populate('authors', 'fullName'), Libro.countDocuments(filter)]);
 
     return {
@@ -85,8 +90,14 @@ export async function getAllLibros_NOT_Deleted(page = 1, limit = 10): Promise<Pa
     };
 }
 
-export async function getLibrosByType(type: string): Promise<ILibro[] | []> {
-    return await Libro.find({ type: type, IsDeleted: false }).populate('authors', 'fullName');
+export async function getLibrosByType(type: string, excludeOwnerId?: string): Promise<ILibro[] | []> {
+    const filter: any = { type: type, IsDeleted: false };
+    
+    if (excludeOwnerId && mongoose.Types.ObjectId.isValid(excludeOwnerId)) {
+        filter.owner = { $ne: new mongoose.Types.ObjectId(excludeOwnerId) };
+    }
+    
+    return await Libro.find(filter).populate('authors', 'fullName');
 }
 
 export async function updateLibro(id: string, data: ILibro): Promise<ILibro | null> {
@@ -105,11 +116,16 @@ export async function getLibroByIsbn(isbn: string): Promise<ILibroModel | null> 
     return await Libro.findOne({ isbn: isbn });
 }
 
-async function searchLibroByTitle(term: string, page = 1, limit = 10): Promise<ILibroModel[] | []> {
-    // return await Libro.find({ title: { $regex: `${term}` } }) // Esto es con expresiones regulares. El profe recomienda hacerlo por index text. https://medium.com/the-tech-bible/how-to-do-full-text-search-in-mongodb-using-mongoose-28e868092dd7
-    return await Libro.find({ $text: { $search: term } })
+async function searchLibroByTitle(term: string, page = 1, limit = 10, excludeOwnerId?: string): Promise<ILibroModel[] | []> {
+    const filter: any = { $text: { $search: term } };
+    
+    if (excludeOwnerId && mongoose.Types.ObjectId.isValid(excludeOwnerId)) {
+        filter.owner = { $ne: new mongoose.Types.ObjectId(excludeOwnerId) };
+    }
+
+    return await Libro.find(filter)
         .limit(limit)
-        .skip((page - 1) * limit); // saltarte los terminos que ya has visto
+        .skip((page - 1) * limit);
 }
 
 export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, getLibroByIsbn, searchLibroByTitle };
