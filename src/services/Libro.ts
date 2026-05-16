@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import Libro, { ILibroModel, ILibro } from '../models/Libro';
+import Usuario from '../models/Usuario';
 import { callOpenLibraryBookApi } from './Util';
 import Logging from '../library/Logging';
 import Autor from './Autor';
@@ -128,4 +129,56 @@ async function searchLibroByTitle(term: string, page = 1, limit = 10, excludeOwn
         .skip((page - 1) * limit);
 }
 
-export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, getLibroByIsbn, searchLibroByTitle };
+export async function buyLibro(libroId: string, userId: string): Promise<boolean> {
+    try {
+        // Mark book as deleted (sold)
+        const updatedLibro = await Libro.findByIdAndUpdate(libroId, { IsDeleted: true });
+        if (!updatedLibro) {
+            Logging.error('Book not found in buyLibro');
+            return false;
+        }
+
+        // Add to user's bought collection
+        const updatedUser = await Usuario.findByIdAndUpdate(userId, {
+            $push: { boughtLibros: libroId }
+        });
+        
+        if (!updatedUser) {
+            Logging.error('User not found in buyLibro');
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        Logging.error(`Error in buyLibro service: ${error}`);
+        return false;
+    }
+}
+
+export async function rentLibro(libroId: string, userId: string): Promise<boolean> {
+    try {
+        // Mark book as deleted (unavailable)
+        const updatedLibro = await Libro.findByIdAndUpdate(libroId, { IsDeleted: true });
+        if (!updatedLibro) {
+            Logging.error('Book not found in rentLibro');
+            return false;
+        }
+
+        // Add to user's rented collection
+        const updatedUser = await Usuario.findByIdAndUpdate(userId, {
+            $push: { rentedLibros: libroId }
+        });
+        
+        if (!updatedUser) {
+            Logging.error('User not found in rentLibro');
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        Logging.error(`Error in rentLibro service: ${error}`);
+        return false;
+    }
+}
+
+export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, getLibroByIsbn, searchLibroByTitle, buyLibro, rentLibro };

@@ -73,7 +73,9 @@ export const Schemas = {
             type: Joi.string().valid('VENTA', 'ALQUILER').required(),
             precio: Joi.number().required(),
             estado: Joi.string().required(),
-            IsDeleted: Joi.boolean().optional()
+            IsDeleted: Joi.boolean().optional(),
+            rentalStartDate: Joi.date().optional(),
+            rentalEndDate: Joi.date().optional()
         }),
         update: Joi.object<ILibro>({
             isbn: Joi.string().optional(),
@@ -82,7 +84,9 @@ export const Schemas = {
             type: Joi.string().valid('VENTA', 'ALQUILER').optional(),
             precio: Joi.number().optional(),
             estado: Joi.string().optional(),
-            IsDeleted: Joi.boolean().optional()
+            IsDeleted: Joi.boolean().optional(),
+            rentalStartDate: Joi.date().optional(),
+            rentalEndDate: Joi.date().optional()
         })
     },
     evento: {

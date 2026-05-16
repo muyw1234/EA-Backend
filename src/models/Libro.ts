@@ -11,6 +11,8 @@ export interface ILibro {
     estado: string;
     owner?: mongoose.Types.ObjectId | string;
     IsDeleted?: boolean;
+    rentalStartDate?: Date;
+    rentalEndDate?: Date;
 }
 
 export interface ILibroModel extends ILibro, Document {}
@@ -24,7 +26,9 @@ const LibroSchema: Schema = new Schema(
         precio: { type: Number, required: true },
         estado: { type: String, required: true },
         owner: { type: Schema.Types.ObjectId, ref: 'Usuario', required: false },
-        IsDeleted: { type: Boolean, default: false }
+        IsDeleted: { type: Boolean, default: false },
+        rentalStartDate: { type: Date, required: false },
+        rentalEndDate: { type: Date, required: false }
     },
     {
         timestamps: true,
