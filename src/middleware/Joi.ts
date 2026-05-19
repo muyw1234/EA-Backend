@@ -71,6 +71,8 @@ export const Schemas = {
         create: Joi.object<ILibro>({
             isbn: Joi.string().required(),
             title: Joi.string().required(),
+            autor: Joi.string().optional().allow(''),
+            categoria: Joi.string().optional().allow(''),
             authors: Joi.array().items(Joi.string().optional()),
             type: Joi.string().valid('VENTA', 'ALQUILER').required(),
             precio: Joi.number().required(),
@@ -82,6 +84,8 @@ export const Schemas = {
         update: Joi.object<ILibro>({
             isbn: Joi.string().optional(),
             title: Joi.string().optional(),
+            autor: Joi.string().optional().allow(''),
+            categoria: Joi.string().optional().allow(''),
             authors: Joi.array().items(Joi.string().optional()),
             type: Joi.string().valid('VENTA', 'ALQUILER').optional(),
             precio: Joi.number().optional(),
