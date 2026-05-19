@@ -6,6 +6,8 @@ export interface ILibro {
     isbn: string;
     title: string;
     authors?: mongoose.Types.ObjectId[] | String[];
+    autor?: string;
+    categoria?: string;
     type: 'VENTA' | 'ALQUILER';
     precio: number;
     estado: string;
@@ -21,6 +23,8 @@ const LibroSchema: Schema = new Schema(
     {
         isbn: { type: String, required: true, index: true },
         title: { type: String, required: true },
+        autor: { type: String, required: false },
+        categoria: { type: String, required: false },
         authors: [{ type: Schema.Types.ObjectId, required: false, ref: 'Autor' }],
         type: { type: String, enum: ['VENTA', 'ALQUILER'], required: true },
         precio: { type: Number, required: true },
@@ -36,6 +40,6 @@ const LibroSchema: Schema = new Schema(
     }
 );
 
-LibroSchema.index({ title: 'text' });
+LibroSchema.index({ title: 'text', isbn: 'text', autor: 'text' });
 
 export default mongoose.model<ILibroModel>('Libro', LibroSchema);
