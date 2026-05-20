@@ -89,7 +89,9 @@ export const Schemas = {
         create: Joi.object<IEvento>({
             title: Joi.string().required(),
             description: Joi.string().required(),
-            date: Joi.date().required(),
+            creator: Joi.string().required(),
+            eventDate: Joi.date().required(),
+            createdDate: Joi.date().required(),
             direccionExacta: Joi.string().required(),
             location: Joi.object({
                 type: Joi.string().valid('Point').required(),
@@ -100,7 +102,9 @@ export const Schemas = {
         update: Joi.object<IEvento>({
             title: Joi.string().optional(),
             description: Joi.string().optional(),
-            date: Joi.date().optional(),
+            creator: Joi.date().optional(),
+            eventDate: Joi.date().optional(),
+            createdDate: Joi.date().optional(),
             direccionExacta: Joi.string().optional(),
             location: Joi.object({
                 type: Joi.string().valid('Point').required(),
