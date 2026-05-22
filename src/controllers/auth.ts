@@ -86,13 +86,10 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
         const librosCount = Array.isArray(usuario.libros) ? usuario.libros.length : 0;
         Logging.info(`Profile for ${usuario.email} requested. Books count: ${librosCount}`);
 
-        return res.status(200).json(usuario);
+        return sendSuccess(res, usuario, 'Perfil de usuario obtenido con éxito', 200);
     } catch (error: any) {
         Logging.error(`Error in profile controller: ${error}`);
-        return res.status(500).json({
-            message: 'Error al obtener el perfil',
-            error: error.message
-        });
+        return sendError(res, error, 'Error al obtener el perfil del usuario', 500);
     }
 };
 

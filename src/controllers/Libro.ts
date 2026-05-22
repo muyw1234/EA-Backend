@@ -28,10 +28,10 @@ const createLibro = async (req: Request, res: Response, next: NextFunction) => {
             Logging.warning('Book created but could not link to user (savedLibro or userId missing)');
         }
 
-        return res.status(201).json(savedLibro);
+        return sendSuccess(res, savedLibro, 'Libro creado', 201);
     } catch (error) {
         Logging.error(`Error in createLibro: ${error}`);
-        return res.status(500).json({ error });
+         return sendError(res, error, 'No se pudo crear el libro');
     }
 };
 
@@ -63,7 +63,7 @@ const getAllLibros_NOT_Deleted = async (req: Request, res: Response, next: NextF
         const { page, limit } = getPaginationParams(req);
         const userId = req.userId; // Provided by OptionalTokenValidation or TokenValidation
         const libros = await LibroService.getAllLibros_NOT_Deleted(page, limit, userId);
-        return res.status(200).json(libros);
+        return sendSuccess(res, libros, 'Libros activos obtenidos con éxito');
     } catch (error) {
         return sendError(res, error, 'Error al recuperar los libros activos');
     }
@@ -74,7 +74,7 @@ const getLibrosByType = async (req: Request, res: Response, next: NextFunction) 
     const userId = req.userId;
     try {
         const libros = await LibroService.getLibrosByType(type, userId);
-        return res.status(200).json(libros);
+        return sendSuccess(res, libros, `Libros de tipo '${type}' obtenidos con éxito`);
     } catch (error) {
         return sendError(res, error, `Error al recuperar los libros de tipo: ${type}`);
     }
@@ -141,11 +141,12 @@ async function searchLibroByTitle(req: Request, res: Response, next: NextFunctio
 
     try {
         const libros = await LibroService.searchLibroByTitle(term, page, limit, userId);
-        if (libros.length === 0) return res.status(404).json({ message: `The term ${term} was not found` });
-        return res.status(200).json(libros);
+        if (libros.length === 0){
+            return sendError(res, `No se encontraron coincidencias para el término: ${term}`, 'Not Found', 404);
+        }
+        return sendSuccess(res, libros, 'Búsqueda procesada con resultados');
     } catch (error) {
-        return res.status(400).json({ error });
-    }
+        return sendError(res, error, 'Error al procesar la búsqueda por título');
 }
 
 const buyLibro = async (req: Request, res: Response, next: NextFunction) => {
