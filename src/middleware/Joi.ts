@@ -33,6 +33,10 @@ export const Schemas = {
             password: Joi.string().min(6).required(),
             rol: Joi.string().valid('Admin', 'User').default('User'),
             libros: Joi.array().items(Joi.string().optional()),
+            favoriteAuthors: Joi.array().items(Joi.string().optional()).max(5).optional(),
+            favoriteBooks: Joi.array().items(Joi.string().optional()).max(5).optional(),
+            favoriteCategories: Joi.array().items(Joi.string().optional()).optional(),
+            followingUsers: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional()).optional(),
             description: Joi.string().optional().allow(''),
             IsDeleted: Joi.boolean().optional()
         }),
@@ -42,6 +46,10 @@ export const Schemas = {
             password: Joi.string().min(6).optional(),
             rol: Joi.string().valid('Admin', 'User').optional(),
             libros: Joi.array().items(Joi.string().optional()),
+            favoriteAuthors: Joi.array().items(Joi.string().optional()).max(5).optional(),
+            favoriteBooks: Joi.array().items(Joi.string().optional()).max(5).optional(),
+            favoriteCategories: Joi.array().items(Joi.string().optional()).optional(),
+            followingUsers: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional()).optional(),
             description: Joi.string().optional().allow(''),
             IsDeleted: Joi.boolean().optional()
         })
