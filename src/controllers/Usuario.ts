@@ -29,6 +29,19 @@ const getUsuario = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const getFollowers = async (req: Request, res: Response, next: NextFunction) => {
+    const usuarioId = req.params.usuarioId;
+    if (!mongoose.Types.ObjectId.isValid(usuarioId)) {
+        return res.status(400).json({ message: 'Invalid user ID format' });
+    }
+    try {
+        const followers = await UsuarioService.getFollowers(usuarioId);
+        return res.status(200).json(followers);
+    } catch (error) {
+        return res.status(500).json({ error });
+    }
+};
+
 const getAllUsuarios = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { page, limit } = getPaginationParams(req);
@@ -106,4 +119,4 @@ async function searchUsuarioByName(req: Request, res: Response, next: NextFuncti
     }
 }
 
-export default { createUsuario, getUsuario, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario, searchUsuarioByName };
+export default { createUsuario, getUsuario, getFollowers, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario, searchUsuarioByName };

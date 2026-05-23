@@ -9,6 +9,10 @@ export interface IUsuario {
     libros: mongoose.Types.ObjectId[] | string[]; // Es un array porque claro, un usuario puede tener mas de un libro
     boughtLibros: mongoose.Types.ObjectId[] | string[];
     rentedLibros: mongoose.Types.ObjectId[] | string[];
+    favoriteAuthors?: string[];
+    favoriteBooks?: string[];
+    favoriteCategories?: string[];
+    followingUsers?: mongoose.Types.ObjectId[] | string[];
     description?: string;
     IsDeleted?: boolean;
     encryptPassword(password: string): Promise<string>;
@@ -26,6 +30,10 @@ const UsuarioSchema: Schema = new Schema(
         libros: [{ type: Schema.Types.ObjectId, required: false, ref: 'Libro' }],
         boughtLibros: [{ type: Schema.Types.ObjectId, required: false, ref: 'Libro' }],
         rentedLibros: [{ type: Schema.Types.ObjectId, required: false, ref: 'Libro' }],
+        favoriteAuthors: [{ type: String, required: false }],
+        favoriteBooks: [{ type: String, required: false }],
+        favoriteCategories: [{ type: String, required: false }],
+        followingUsers: [{ type: Schema.Types.ObjectId, required: false, ref: 'Usuario' }],
         description: { type: String, required: false, default: '' },
         IsDeleted: { type: Boolean, default: false }
     },

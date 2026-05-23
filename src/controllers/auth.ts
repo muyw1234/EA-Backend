@@ -64,7 +64,8 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
             .populate({
                 path: 'rentedLibros',
                 populate: { path: 'owner', select: '_id name' }
-            });
+            })
+            .populate('followingUsers', 'name email');
 
         if (!usuario) {
             Logging.warning(`Profile requested for non-existent user ID: ${req.userId}`);

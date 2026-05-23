@@ -15,6 +15,10 @@ const getUsuario = async (usuarioId: string): Promise<IUsuarioModel | null> => {
     return await Usuario.findById(usuarioId).populate('libros', 'title');
 };
 
+const getFollowers = async (usuarioId: string) => {
+    return await Usuario.find({ followingUsers: usuarioId }).select('_id name email');
+};
+
 const getUsuarioByEmail = async (theEmail: string): Promise<IUsuarioModel | null> => {
     return await Usuario.findOne({ email: theEmail });
 };
@@ -72,9 +76,9 @@ const restoreUsuario = async (usuarioId: string): Promise<IUsuarioModel | null> 
 };
 
 async function searchUsuarioByName(term: string, page = 1, limit = 10) {
-    return await Usuario.find({ $text: { $search: term } })
+    return await Usuario.find({ $text: { $search: term }, IsDeleted: false })
         .limit(limit)
         .skip((page - 1) * limit);
 }
 
-export default { createUsuario, getUsuario, getUsuarioByEmail, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario, searchUsuarioByName };
+export default { createUsuario, getUsuario, getFollowers, getUsuarioByEmail, getAllUsuarios, getAllUsuarios_NOT_Deleted, updateUsuario, deleteUsuario, permanentDeleteUsuario, restoreUsuario, searchUsuarioByName };

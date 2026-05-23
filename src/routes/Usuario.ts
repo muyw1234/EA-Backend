@@ -245,6 +245,29 @@ router.get('/:usuarioId', TokenValidation, controller.getUsuario);
 
 /**
  * @openapi
+ * /usuarios/{usuarioId}/followers:
+ *   get:
+ *     summary: Obtener los seguidores de un usuario
+ *     description: Recupera la lista de usuarios que siguen a un usuario especifico.
+ *     tags:
+ *       - Usuarios
+ *     parameters:
+ *       - in: path
+ *         name: usuarioId
+ *         required: true
+ *         description: ID del usuario en MongoDB
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Seguidores obtenidos correctamente
+ *       404:
+ *         description: Usuario no encontrado
+ */
+router.get('/:usuarioId/followers', TokenValidation, controller.getFollowers);
+
+/**
+ * @openapi
  * /usuarios:
  *   get:
  *     summary: Listar usuarios no eliminados
@@ -360,7 +383,7 @@ router.put('/:usuarioId', TokenValidation, isSelfOrAdmin, ValidateJoi(Schemas.us
  *       404:
  *         description: Usuario no encontrado
  */
-router.delete('/:usuarioId', TokenValidation, isAdmin, controller.deleteUsuario);
+router.delete('/:usuarioId', TokenValidation, isSelfOrAdmin, controller.deleteUsuario);
 
 /**
  * @openapi
@@ -392,7 +415,7 @@ router.delete('/:usuarioId', TokenValidation, isAdmin, controller.deleteUsuario)
  *       500:
  *         description: Error interno del servidor
  */
-router.delete('/permanent/:usuarioId', TokenValidation, isAdmin, controller.permanentDeleteUsuario);
+router.delete('/permanent/:usuarioId', TokenValidation, isSelfOrAdmin, controller.permanentDeleteUsuario);
 
 /**
  * @openapi
