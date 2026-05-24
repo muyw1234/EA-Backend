@@ -31,7 +31,7 @@ const createLibro = async (req: Request, res: Response, next: NextFunction) => {
         return sendSuccess(res, savedLibro, 'Libro creado', 201);
     } catch (error) {
         Logging.error(`Error in createLibro: ${error}`);
-         return sendError(res, error, 'No se pudo crear el libro');
+        return sendError(res, error, 'No se pudo crear el libro');
     }
 };
 
@@ -141,12 +141,13 @@ async function searchLibroByTitle(req: Request, res: Response, next: NextFunctio
 
     try {
         const libros = await LibroService.searchLibroByTitle(term, page, limit, userId);
-        if (libros.length === 0){
+        if (libros.length === 0) {
             return sendError(res, `No se encontraron coincidencias para el término: ${term}`, 'Not Found', 404);
         }
         return sendSuccess(res, libros, 'Búsqueda procesada con resultados');
     } catch (error) {
         return sendError(res, error, 'Error al procesar la búsqueda por título');
+    }
 }
 
 const buyLibro = async (req: Request, res: Response, next: NextFunction) => {

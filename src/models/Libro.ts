@@ -15,6 +15,7 @@ export interface ILibro {
     IsDeleted?: boolean;
     rentalStartDate?: Date;
     rentalEndDate?: Date;
+    imageUrl?: string;
 }
 
 export interface ILibroModel extends ILibro, Document {}
@@ -32,7 +33,8 @@ const LibroSchema: Schema = new Schema(
         owner: { type: Schema.Types.ObjectId, ref: 'Usuario', required: false },
         IsDeleted: { type: Boolean, default: false },
         rentalStartDate: { type: Date, required: false },
-        rentalEndDate: { type: Date, required: false }
+        rentalEndDate: { type: Date, required: false },
+        imageUrl: { type: String, required: false }
     },
     {
         timestamps: true,

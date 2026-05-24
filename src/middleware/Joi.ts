@@ -36,7 +36,13 @@ export const Schemas = {
             favoriteAuthors: Joi.array().items(Joi.string().optional()).max(5).optional(),
             favoriteBooks: Joi.array().items(Joi.string().optional()).max(5).optional(),
             favoriteCategories: Joi.array().items(Joi.string().optional()).optional(),
-            followingUsers: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional()).optional(),
+            followingUsers: Joi.array()
+                .items(
+                    Joi.string()
+                        .regex(/^[0-9a-fA-F]{24}$/)
+                        .optional()
+                )
+                .optional(),
             description: Joi.string().optional().allow(''),
             IsDeleted: Joi.boolean().optional()
         }),
@@ -49,7 +55,13 @@ export const Schemas = {
             favoriteAuthors: Joi.array().items(Joi.string().optional()).max(5).optional(),
             favoriteBooks: Joi.array().items(Joi.string().optional()).max(5).optional(),
             favoriteCategories: Joi.array().items(Joi.string().optional()).optional(),
-            followingUsers: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/).optional()).optional(),
+            followingUsers: Joi.array()
+                .items(
+                    Joi.string()
+                        .regex(/^[0-9a-fA-F]{24}$/)
+                        .optional()
+                )
+                .optional(),
             description: Joi.string().optional().allow(''),
             IsDeleted: Joi.boolean().optional()
         })
@@ -87,7 +99,8 @@ export const Schemas = {
             estado: Joi.string().required(),
             IsDeleted: Joi.boolean().optional(),
             rentalStartDate: Joi.date().optional(),
-            rentalEndDate: Joi.date().optional()
+            rentalEndDate: Joi.date().optional(),
+            imageUrl: Joi.string().optional()
         }),
         update: Joi.object<ILibro>({
             isbn: Joi.string().optional(),
@@ -100,7 +113,8 @@ export const Schemas = {
             estado: Joi.string().optional(),
             IsDeleted: Joi.boolean().optional(),
             rentalStartDate: Joi.date().optional(),
-            rentalEndDate: Joi.date().optional()
+            rentalEndDate: Joi.date().optional(),
+            imageUrl: Joi.string().optional()
         })
     },
     evento: {
@@ -183,8 +197,12 @@ export const Schemas = {
     }),
     valoracion: {
         create: Joi.object({
-            usuarioValorado: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
-            libro: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+            usuarioValorado: Joi.string()
+                .regex(/^[0-9a-fA-F]{24}$/)
+                .required(),
+            libro: Joi.string()
+                .regex(/^[0-9a-fA-F]{24}$/)
+                .required(),
             tipoOperacion: Joi.string().valid('VENTA', 'ALQUILER').required(),
             puntuacion: Joi.number().min(1).max(5).required(),
             comentario: Joi.string().optional().allow('')
