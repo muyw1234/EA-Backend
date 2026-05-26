@@ -9,6 +9,7 @@ export interface IEvento {
     title: string;
     description: string;
     creator: mongoose.Types.ObjectId | string;
+    participant: (mongoose.Types.ObjectId | string)[];
     eventDate: Date;
     createdDate: Date;
     location: IPoint;
@@ -38,6 +39,7 @@ const EventoSchema: Schema = new Schema(
         title: { type: String, required: true },
         description: { type: String, required: true },
         creator: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
+        participant: [{ type: Schema.Types.ObjectId, ref: 'Usuario', default: [] }],
         eventDate: { type: Date, required: true },
         createdDate: { type: Date, required: true },
         location: { type: pointSchema, required: true },

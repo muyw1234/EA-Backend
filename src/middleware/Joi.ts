@@ -134,7 +134,12 @@ export const Schemas = {
         update: Joi.object<IEvento>({
             title: Joi.string().optional(),
             description: Joi.string().optional(),
-            creator: Joi.date().optional(),
+            creator: Joi.string().optional(),
+            participant: Joi.object({
+                usuarioId: Joi.string()
+                    .regex(/^[0-9a-fA-F]{24}$/)
+                    .required()
+            }),
             eventDate: Joi.date().optional(),
             createdDate: Joi.date().optional(),
             direccionExacta: Joi.string().optional(),
