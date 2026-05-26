@@ -19,6 +19,7 @@
     "@types/node-fetch": "^2.6.13",
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
     "dotenv": "^16.0.0",
     "expo": "^56.0.4",
