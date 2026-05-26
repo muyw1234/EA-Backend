@@ -39,12 +39,12 @@ export function sendError(res: Response, error: unknown, customMessage?: string,
 
         // Error de Validación de Mongoose
         if (error.name === 'ValidationError' && 'errors' in error) {
-            status = 400; // Bad Request
+            status = 400;
             message = 'Los datos enviados no son válidos';
             const mongooseErrors = (error as any).errors;
             errors = {};
             for (const key in mongooseErrors) {
-                errors[key] = mongooseErrors[key].message; // "El título es obligatorio", etc.
+                errors[key] = mongooseErrors[key].message;
             }
         }
         // Clave duplicada en MongoDB

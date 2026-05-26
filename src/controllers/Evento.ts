@@ -97,4 +97,37 @@ const restoreEvento = async (req: Request, res: Response, next: NextFunction) =>
     }
 };
 
-export default { createEvento, getEvento, getAllEventos, getEventosByExactLocation, updateEvento, deleteEvento, restoreEvento };
+const participarEvento = async (req: Request, res: Response, next: NextFunction) => {
+    const { eventoId } = req.params;
+    const { usuarioId } = req.body;
+
+    if (!usuarioId) {
+        return sendError(res, 'El ID del usuario es requerido para participar.', 'Bad Request', 400);
+    }
+
+    try {
+        const evento = await EventoService.participarEvento(eventoId, usuarioId);
+        if (!evento) {
+            return sendError(res, 'No se encontró el evento para participar', 'Not Found', 404);
+        }
+        return sendSuccess(res, evento, 'Te has apuntado al evento con éxito');
+    } catch (error) {
+        return sendError(res, error, 'Error al intentar registrar la participación');
+    }
+};
+
+const leaveEvento = async (req: Request, res: Response, next: NextFunction) => {
+    const { eventoId } = req.params;
+    const { usuarioId } = req.body;
+    try {
+        const evento = await EventoService.leaveEvento(eventoId, usuarioId);
+        if (!evento) {
+            return res.status(404).json({ success: false, message: 'Evento no encontrado' });
+        }
+        return res.status(200).json({ success: true, data: evento });
+    } catch (error) {
+        return sendError(res, error, 'Error al intentar salir del evento');
+    }
+};
+
+export default { createEvento, getEvento, getAllEventos, getEventosByExactLocation, updateEvento, deleteEvento, restoreEvento, participarEvento, leaveEvento };

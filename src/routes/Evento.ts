@@ -1,7 +1,7 @@
 import express from 'express';
 import controller from '../controllers/Evento';
 import { Schemas, ValidateJoi } from '../middleware/Joi';
-
+import { TokenValidation } from '../middleware/verifyToken';
 const router = express.Router();
 
 /**
@@ -286,4 +286,76 @@ router.delete('/:eventoId', controller.deleteEvento);
  */
 router.post('/:eventoId/restore', controller.restoreEvento);
 
+/**
+ * @openapi
+ * /eventos/{eventoId}/participate:
+ *   put:
+ *     summary: Registra la participación de un usuario en el evento
+ *     tags: [Eventos]
+ *     parameters:
+ *       - in: path
+ *         name: eventoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - usuarioId
+ *             properties:
+ *               usuarioId:
+ *                 type: string
+ *                 example: "60c72b2f9b1d8b2bad00001a"
+ *     responses:
+ *       200:
+ *         description: Participación registrada con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Evento'
+ *       404:
+ *         description: Evento no encontrado
+ *       422:
+ *         description: Validación fallida (ID inválido)
+ */
+router.put('/:eventoId/participate', TokenValidation, controller.participarEvento);
+/**
+ * @openapi
+ * /eventos/{eventoId}/leave:
+ *   put:
+ *     summary: Cancela la participación de un usuario en el evento
+ *     tags: [Eventos]
+ *     parameters:
+ *       - in: path
+ *         name: eventoId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - usuarioId
+ *             properties:
+ *               usuarioId:
+ *                 type: string
+ *                 example: "60c72b2f9b1d8b2bad00001a"
+ *     responses:
+ *       200:
+ *         description: Participación cancelada con éxito
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Evento'
+ *       404:
+ *         description: Evento no encontrado
+ */
+router.put('/:eventoId/leave', TokenValidation, controller.leaveEvento);
 export default router;

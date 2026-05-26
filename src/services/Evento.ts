@@ -11,7 +11,10 @@ const createEvento = async (data: Partial<IEvento>): Promise<IEventoModel> => {
 };
 
 const getEvento = async (eventoId: string): Promise<IEventoModel | null> => {
-    return await Evento.findById(eventoId);
+    const evento = await Evento.findById(eventoId)
+        .populate('creator', 'name email') // Opcional: llena también el creador
+        .populate('participant', 'name email avatar');
+    return evento;
 };
 
 const getAllEventos = async (page = 1, limit = 10): Promise<PaginatedResult<IEventoModel>> => {
@@ -61,4 +64,13 @@ const restoreEvento = async (eventoId: string): Promise<IEventoModel | null> => 
     ); // Return the updated document
 };
 
-export default { createEvento, getEvento, getAllEventos, getEventsAtExactLocation, updateEvento, deleteEvento, restoreEvento };
+const participarEvento = async (eventoId: string, usuarioId: string): Promise<IEventoModel | null> => {
+    return await Evento.findByIdAndUpdate(eventoId, { $addToSet: { participant: usuarioId } }, { new: true });
+};
+
+const leaveEvento = async (eventoId: string, usuarioId: string): Promise<IEventoModel | null> => {
+    const evento = await Evento.findByIdAndUpdate(eventoId, { $pull: { participant: usuarioId } }, { new: true }).populate('participant', 'name email');
+    return evento;
+};
+
+export default { createEvento, getEvento, getAllEventos, getEventsAtExactLocation, updateEvento, deleteEvento, restoreEvento, participarEvento, leaveEvento };
