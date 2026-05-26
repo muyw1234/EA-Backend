@@ -16,6 +16,7 @@ import mensajeRoutes from './routes/Mensaje';
 import authRoutes from './routes/auth';
 import postRoutes from './routes/Post';
 import valoracionRoutes from './routes/Valoracion';
+import imageRoutes from './routes/Image';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './swagger';
 import { socketHandler } from './services/SocketHandler';
@@ -58,6 +59,7 @@ const StartServer = () => {
     router.use('/auth', authRoutes);
     router.use('/posts', postRoutes);
     router.use('/valoraciones', valoracionRoutes);
+    router.use('/image', imageRoutes);
 
     /** Healthcheck */
     router.get('/ping', (req, res, next) => res.status(200).json({ hello: 'world' }));

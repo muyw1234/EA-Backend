@@ -11,6 +11,9 @@ const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRE
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'LlaveRefreshDefault';
 const JWT_ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRES_IN || '15m';
 const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || 'Pon el tuyo';
+const CLOUDINARY_SECRET = process.env.CLOUDINARY_SECRET || 'Pon el turo';
+const CLOUDINARY_NAME = process.env.CLOUDINARY_NAME || 'Pon el tuyo';
 
 export const config = {
     mongo: {
@@ -26,5 +29,10 @@ export const config = {
         port: SERVER_PORT,
         swaggerUrl: SWAGGER_URL,
         swaggerPort: SWAGGER_PORT
+    },
+    cloudinary: {
+        apiKey: CLOUDINARY_API_KEY,
+        secret: CLOUDINARY_SECRET,
+        name: CLOUDINARY_NAME
     }
 };

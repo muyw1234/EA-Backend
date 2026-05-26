@@ -1,14 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
 import AutorService from '../services/Autor';
 import { getPaginationParams } from './Pagination';
+import { sendSuccess, sendError } from '../library/ApiResponse';
 
 // Maneja la creación de un nuevo autor
 const createAutor = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const savedAutor = await AutorService.createAutor(req.body);
-        return res.status(201).json(savedAutor);
+        return sendSuccess(res, savedAutor, 'Autor creado con éxito', 201);
     } catch (error) {
-        return res.status(500).json({ error });
+        // Si falta un campo obligatorio o el formato de datos es inválido, devolverá un 400 detallado
+        return sendError(res, error, 'No se pudo registrar el autor');
     }
 };
 
@@ -17,9 +19,12 @@ const getAutor = async (req: Request, res: Response, next: NextFunction) => {
     const autorId = req.params.autorId;
     try {
         const autor = await AutorService.getAutor(autorId);
-        return autor ? res.status(200).json(autor) : res.status(404).json({ message: 'not found' });
+        if (!autor) {
+            return sendError(res, 'El autor solicitado no existe', 'Not Found', 404);
+        }
+        return sendSuccess(res, autor, 'Autor obtenido con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al procesar la búsqueda del autor');
     }
 };
 
@@ -28,9 +33,9 @@ const getAllAutores = async (req: Request, res: Response, next: NextFunction) =>
     try {
         const { page, limit } = getPaginationParams(req);
         const autores = await AutorService.getAllAutores(page, limit);
-        return res.status(200).json(autores);
+        return sendSuccess(res, autores, 'Listado de autores obtenido con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al recuperar la lista de autores');
     }
 };
 
@@ -39,9 +44,9 @@ const getAllAutores_NOT_Deleted = async (req: Request, res: Response, next: Next
     try {
         const { page, limit } = getPaginationParams(req);
         const autores = await AutorService.getAllAutores_NOT_Deleted(page, limit);
-        return res.status(200).json(autores);
+        return sendSuccess(res, autores, 'Listado de autores activos obtenido con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al recuperar los autores activos');
     }
 };
 
@@ -50,13 +55,12 @@ const updateAutor = async (req: Request, res: Response, next: NextFunction) => {
     const autorId = req.params.autorId;
     try {
         const savedAutor = await AutorService.updateAutor(autorId, req.body);
-        if (savedAutor) {
-            return res.status(200).json(savedAutor);
-        } else {
-            return res.status(404).json({ message: 'not found' });
+        if (!savedAutor) {
+            return sendError(res, 'No se encontró el autor para actualizar', 'Not Found', 404);
         }
+        return sendSuccess(res, savedAutor, 'Autor actualizado con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar actualizar el autor');
     }
 };
 
@@ -65,19 +69,25 @@ const deleteAutor = async (req: Request, res: Response, next: NextFunction) => {
     const autorId = req.params.autorId;
     try {
         const deletedAutor = await AutorService.deleteAutor(autorId);
-        return deletedAutor ? res.status(201).json({ message: 'deleted' }) : res.status(404).json({ message: 'not found' });
+        if (!deletedAutor) {
+            return sendError(res, 'No se encontró el autor para eliminar', 'Not Found', 404);
+        }
+        return sendSuccess(res, deletedAutor, 'Autor eliminado permanentemente con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar eliminar el autor');
     }
 };
 
 const restoreAutor = async (req: Request, res: Response, next: NextFunction) => {
     const autorId = req.params.autorId;
-    try {        
+    try {
         const autor = await AutorService.restoreAutor(autorId);
-        return autor ? res.status(200).json(autor) : res.status(404).json({ message: 'not found' });
+        if (!autor) {
+            return sendError(res, 'No se encontró el autor para restaurar', 'Not Found', 404);
+        }
+        return sendSuccess(res, autor, 'Autor restaurado con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar restaurar el autor');
     }
 };
 

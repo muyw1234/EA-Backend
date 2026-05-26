@@ -10,8 +10,22 @@ const router = express.Router();
  * tags:
  *   - name: Libros
  *     description: Endpoints CRUD de libros
+ *
  * components:
  *   schemas:
+ *
+ *     Author:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: ObjectId del autor
+ *           example: "6a060eff9e1aee14101f6cda"
+ *         fullName:
+ *           type: string
+ *           description: Nombre completo del autor
+ *           example: "Robert C. Martin"
+ *
  *     Libro:
  *       type: object
  *       description: Representa un libro en la base de datos
@@ -19,54 +33,118 @@ const router = express.Router();
  *         _id:
  *           type: string
  *           description: ObjectId de MongoDB
- *           example: "65f1c2a1b2c3d4e5f6789012"
+ *           example: "6a060eff9e1aee14101f6cdd"
+ *
  *         isbn:
  *           type: string
  *           description: ISBN del libro
- *           example: "978-0132350884"
+ *           example: "9780132350884"
+ *
  *         title:
  *           type: string
  *           description: Título del libro
  *           example: "Clean Code"
+ *
  *         authors:
  *           type: array
- *           description: Lista de IDs de autores asociados al libro
+ *           description: Lista de autores asociados
  *           items:
- *             type: string
- *             example: "65f1c2a1b2c3d4e5f6789013"
- *           example:
- *             - "65f1c2a1b2c3d4e5f6789013"
+ *             $ref: '#/components/schemas/Author'
+ *
+ *         type:
+ *           type: string
+ *           enum:
+ *             - VENTA
+ *             - ALQUILER
+ *           description: Tipo de libro
+ *           example: "VENTA"
+ *
+ *         precio:
+ *           type: number
+ *           format: float
+ *           description: Precio del libro
+ *           example: 12
+ *
+ *         estado:
+ *           type: string
+ *           enum:
+ *             - nuevo
+ *             - usado
+ *           description: Estado del libro
+ *           example: "nuevo"
+ *
  *         IsDeleted:
  *           type: boolean
- *           description: Indica si el libro ha sido eliminado lógicamente
+ *           description: Indica si el libro fue eliminado lógicamente
  *           example: false
+ *
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: Fecha de creación
+ *           example: "2026-05-14T18:05:51.806Z"
+ *
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Fecha de actualización
+ *           example: "2026-05-14T18:05:51.806Z"
+ *
  *     LibroCreateUpdate:
  *       type: object
  *       description: Datos necesarios para crear o actualizar un libro
  *       required:
+ *         - isbn
  *         - title
  *         - authors
+ *         - type
+ *         - precio
+ *         - estado
+ *
  *       properties:
+ *         isbn:
+ *           type: string
+ *           description: ISBN del libro
+ *           example: "9780132350884"
+ *
  *         title:
  *           type: string
  *           description: Título del libro
  *           example: "Clean Code"
+ *
  *         authors:
  *           type: array
- *           description: Lista de IDs de autores asociados al libro
+ *           description: Lista de IDs de autores
  *           items:
  *             type: string
- *             example: "65f1c2a1b2c3d4e5f6789013"
  *             pattern: '^[0-9a-fA-F]{24}$'
- *           example:
- *             - "65f1c2a1b2c3d4e5f6789013"
- *         isbn:
+ *             example: "6a060eff9e1aee14101f6cda"
+ *
+ *         type:
  *           type: string
- *           description: ISBN del libro
- *           example: "978-0132350884"
+ *           enum:
+ *             - VENTA
+ *             - ALQUILER
+ *           description: Tipo de publicación
+ *           example: "VENTA"
+ *
+ *         precio:
+ *           type: number
+ *           format: float
+ *           description: Precio del libro
+ *           example: 12
+ *
+ *         estado:
+ *           type: string
+ *           enum:
+ *             - nuevo
+ *             - usado
+ *           description: Estado del libro
+ *           example: "nuevo"
+ *
  *         IsDeleted:
  *           type: boolean
- *           description: Indica si el libro ha sido eliminado lógicamente
+ *           description: Eliminación lógica
  *           example: false
  */
 

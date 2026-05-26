@@ -6,9 +6,10 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config/config';
 import { IPayload } from '../middleware/verifyToken';
 import Logging from '../library/Logging';
+import { sendError, sendSuccess } from '../library/ApiResponse';
 
 //#region Autenticacion
-// Muchas de estos codigos los he sacado del video directamente, no os asusteis si es que no coinciden con los del ejercicio del seminario.
+
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user: IUsuarioModel = new Usuario({
@@ -17,38 +18,49 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
             password: req.body.password
         });
 
-        // encriptamos
+        // Encriptamos la contraseña antes de guardar
         user.password = await user.encryptPassword(user.password);
-
         const savedUser = await user.save();
+
+        // Generamos el token de acceso
         const token: string = jwt.sign({ _id: savedUser._id, rol: savedUser.rol }, config.jwt.accessSecret);
-        return res.header('auth-token', token).status(201).json({ user: savedUser, token });
+
+        // Adjuntamos la cabecera por compatibilidad y respondemos con sendSuccess
+        res.header('auth-token', token);
+        return sendSuccess(res, { user: savedUser, token }, 'Usuario registrado con éxito', 201);
     } catch (error: any) {
         Logging.error(`Signup error: ${error}`);
-        if (error.code === 11000) {
-            return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
-        }
-        return res.status(500).json({ error: 'Internal Server Error' });
+        // sendError ya detecta internamente el código 11000 (Clave duplicada)
+        // pero le pasamos un mensaje personalizado para el usuario final
+        return sendError(res, error, 'El correo electrónico ya está registrado', 400);
     }
 };
 
 export const signin = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await UsuarioService.getUsuarioByEmail(req.body.email);
-        if (!user) return res.status(400).json('Email or password is wrong');
+        if (!user) {
+            return sendError(res, 'Email or password is wrong', 'Credenciales incorrectas', 400);
+        }
+
         const correctPassword: boolean = await user.validatePassword(req.body.password);
-        if (!correctPassword) return res.status(400).json('Incorrect password');
+        if (!correctPassword) {
+            return sendError(res, 'Incorrect password', 'Credenciales incorrectas', 400);
+        }
+
         const token: string = jwt.sign({ _id: user._id, rol: user.rol } as IPayload, config.jwt.accessSecret, {
-            expiresIn: 60 * 15 // tiempo de expiracion en segundos, pero poniendo config.jwt.expiresIn siempre me da errores
+            expiresIn: 60 * 15 // 15 minutos
         });
-        return res.header('auth-token', token).status(200).json({ user, token });
+
+        // Adjuntamos la cabecera por compatibilidad y respondemos con sendSuccess
+        res.header('auth-token', token);
+        return sendSuccess(res, { user, token }, 'Autenticación exitosa', 200);
     } catch (error) {
         Logging.error(`Signin error: ${error}`);
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error interno durante el inicio de sesión', 500);
     }
 };
 
-// retorna la informacion del perfil
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.userId) {
@@ -74,16 +86,14 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
 
         const librosCount = Array.isArray(usuario.libros) ? usuario.libros.length : 0;
         Logging.info(`Profile for ${usuario.email} requested. Books count: ${librosCount}`);
-        
-        return res.status(200).json(usuario);
+
+        return sendSuccess(res, usuario, 'Perfil de usuario obtenido con éxito', 200);
     } catch (error: any) {
         Logging.error(`Error in profile controller: ${error}`);
-        return res.status(500).json({ 
-            message: 'Error al obtener el perfil',
-            error: error.message 
-        });
+        return sendError(res, error, 'Error al obtener el perfil del usuario', 500);
     }
 };
+
 //#endregion Autenticacion
 
 export default { signup, signin, profile };

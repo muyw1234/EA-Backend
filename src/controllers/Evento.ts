@@ -2,13 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import EventoService from '../services/Evento';
 import { getPaginationParams } from './Pagination';
+import { sendSuccess, sendError } from '../library/ApiResponse';
 
 const createEvento = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const evento = await EventoService.createEvento(req.body);
-        return res.status(201).json(evento);
+        return sendSuccess(res, evento, 'Evento creado con éxito', 201);
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'No se pudo crear el evento');
     }
 };
 
@@ -16,9 +17,12 @@ const getEvento = async (req: Request, res: Response, next: NextFunction) => {
     const eventoId = req.params.eventoId;
     try {
         const evento = await EventoService.getEvento(eventoId);
-        return evento ? res.status(200).json(evento) : res.status(404).json({ message: 'not found' });
+        if (!evento) {
+            return sendError(res, 'El evento solicitado no existe', 'Not Found', 404);
+        }
+        return sendSuccess(res, evento, 'Evento obtenido con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al buscar el evento');
     }
 };
 
@@ -26,9 +30,9 @@ const getAllEventos = async (req: Request, res: Response, next: NextFunction) =>
     try {
         const { page, limit } = getPaginationParams(req);
         const eventos = await EventoService.getAllEventos(page, limit);
-        return res.status(200).json(eventos);
+        return sendSuccess(res, eventos, 'Listado de eventos obtenido con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al recuperar el listado de eventos');
     }
 };
 
@@ -37,20 +41,20 @@ const getEventosByExactLocation = async (req: Request, res: Response, next: Next
         const { lng, lat } = req.query;
 
         if (!lng || !lat) {
-            return res.status(400).json({ message: 'Falta coordenadas: lng y lat son requeridas.' });
+            return sendError(res, 'Faltan parámetros: lng y lat son requeridos.', 'Bad Request', 400);
         }
 
         const longitude = parseFloat(lng as string);
         const latitude = parseFloat(lat as string);
 
         if (isNaN(longitude) || isNaN(latitude)) {
-            return res.status(400).json({ message: 'Formato de coordenadas inválido. Deben ser números.' });
+            return sendError(res, 'Formato de coordenadas inválido. Deben ser números válidos.', 'Bad Request', 400);
         }
 
         const eventos = await EventoService.getEventsAtExactLocation(longitude, latitude);
-        return res.status(200).json(eventos);
+        return sendSuccess(res, eventos, 'Eventos encontrados en la ubicación exacta');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al buscar eventos por coordenadas');
     }
 };
 
@@ -58,13 +62,12 @@ const updateEvento = async (req: Request, res: Response, next: NextFunction) => 
     const eventoId = req.params.eventoId;
     try {
         const evento = await EventoService.updateEvento(eventoId, req.body);
-        if (evento) {
-            return res.status(201).json(evento);
-        } else {
-            return res.status(404).json({ message: 'not found' });
+        if (!evento) {
+            return sendError(res, 'No se encontró el evento para actualizar', 'Not Found', 404);
         }
+        return sendSuccess(res, evento, 'Evento actualizado con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar actualizar el evento');
     }
 };
 
@@ -72,9 +75,12 @@ const deleteEvento = async (req: Request, res: Response, next: NextFunction) => 
     const eventoId = req.params.eventoId;
     try {
         const evento = await EventoService.deleteEvento(eventoId);
-        return evento ? res.status(201).json({ message: 'deleted' }) : res.status(404).json({ message: 'not found' });
+        if (!evento) {
+            return sendError(res, 'No se encontró el evento para eliminar', 'Not Found', 404);
+        }
+        return sendSuccess(res, evento, 'Evento marcado como eliminado con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar eliminar el evento');
     }
 };
 
@@ -82,9 +88,13 @@ const restoreEvento = async (req: Request, res: Response, next: NextFunction) =>
     const eventoId = req.params.eventoId;
     try {
         const evento = await EventoService.restoreEvento(eventoId);
-        return evento ? res.status(200).json(evento) : res.status(404).json({ message: 'not found' });
+        if (!evento) {
+            return sendError(res, 'No se encontró el evento para restaurar', 'Not Found', 404);
+        }
+        return sendSuccess(res, evento, 'Evento restaurado con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar restaurar el evento');
     }
 };
+
 export default { createEvento, getEvento, getAllEventos, getEventosByExactLocation, updateEvento, deleteEvento, restoreEvento };

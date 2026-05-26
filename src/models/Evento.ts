@@ -8,7 +8,9 @@ export interface IPoint {
 export interface IEvento {
     title: string;
     description: string;
-    date: Date;
+    creator: mongoose.Types.ObjectId | string;
+    eventDate: Date;
+    createdDate: Date;
     location: IPoint;
     direccionExacta: string;
     IsDeleted?: boolean;
@@ -35,9 +37,11 @@ const EventoSchema: Schema = new Schema(
     {
         title: { type: String, required: true },
         description: { type: String, required: true },
-        date: { type: Date, required: true },
+        creator: { type: Schema.Types.ObjectId, ref: 'Usuario', required: true },
+        eventDate: { type: Date, required: true },
+        createdDate: { type: Date, required: true },
         location: { type: pointSchema, required: true },
-        direccionExacta: { type: String, required: true }, // Verified required
+        direccionExacta: { type: String, required: true },
         IsDeleted: { type: Boolean, default: false }
     },
     {

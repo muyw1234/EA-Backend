@@ -4,18 +4,19 @@ import LibroService from '../services/Libro';
 import Usuario from '../models/Usuario';
 import Logging from '../library/Logging';
 import { getPaginationParams } from './Pagination';
+import { sendSuccess, sendError } from '../library/ApiResponse';
 
 const createLibro = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = (req as any).userId;
-        
+
         // Add owner to the request body before creating the book
         if (userId) {
             req.body.owner = userId;
         }
 
         const savedLibro = await LibroService.createLibro(req.body);
-        
+
         if (savedLibro && userId) {
             const libroId = (savedLibro as any)._id;
             // Update the user's book list
@@ -26,11 +27,11 @@ const createLibro = async (req: Request, res: Response, next: NextFunction) => {
         } else {
             Logging.warning('Book created but could not link to user (savedLibro or userId missing)');
         }
-        
-        return res.status(201).json(savedLibro);
+
+        return sendSuccess(res, savedLibro, 'Libro creado', 201);
     } catch (error) {
         Logging.error(`Error in createLibro: ${error}`);
-        return res.status(500).json({ error });
+        return sendError(res, error, 'No se pudo crear el libro');
     }
 };
 
@@ -38,9 +39,12 @@ const getLibro = async (req: Request, res: Response, next: NextFunction) => {
     const libroId = req.params.libroId;
     try {
         const libro = await LibroService.getLibro(libroId);
-        return libro ? res.status(200).json(libro) : res.status(404).json({ message: 'not found' });
+        if (!libro) {
+            return sendError(res, 'El libro solicitado no existe en la base de datos', 'Not Found', 404);
+        }
+        return sendSuccess(res, libro, 'Libro obtenido con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al procesar la búsqueda del libro');
     }
 };
 
@@ -48,9 +52,9 @@ const getAllLibros = async (req: Request, res: Response, next: NextFunction) => 
     try {
         const { page, limit } = getPaginationParams(req);
         const libros = await LibroService.getAllLibros(page, limit);
-        return res.status(200).json(libros);
+        return sendSuccess(res, libros, 'Libros obtenidos con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al recuperar el listado de libros');
     }
 };
 
@@ -59,9 +63,9 @@ const getAllLibros_NOT_Deleted = async (req: Request, res: Response, next: NextF
         const { page, limit } = getPaginationParams(req);
         const userId = req.userId; // Provided by OptionalTokenValidation or TokenValidation
         const libros = await LibroService.getAllLibros_NOT_Deleted(page, limit, userId);
-        return res.status(200).json(libros);
+        return sendSuccess(res, libros, 'Libros activos obtenidos con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al recuperar los libros activos');
     }
 };
 
@@ -70,9 +74,9 @@ const getLibrosByType = async (req: Request, res: Response, next: NextFunction) 
     const userId = req.userId;
     try {
         const libros = await LibroService.getLibrosByType(type, userId);
-        return res.status(200).json(libros);
+        return sendSuccess(res, libros, `Libros de tipo '${type}' obtenidos con éxito`);
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, `Error al recuperar los libros de tipo: ${type}`);
     }
 };
 
@@ -80,13 +84,12 @@ const updateLibro = async (req: Request, res: Response, next: NextFunction) => {
     const libroId = req.params.libroId;
     try {
         const libro = await LibroService.updateLibro(libroId, req.body);
-        if (libro) {
-            return res.status(200).json(libro);
-        } else {
-            return res.status(404).json({ message: 'not found' });
+        if (!libro) {
+            return sendError(res, 'No se encontró el libro solicitado para actualizar', 'Not Found', 404);
         }
+        return sendSuccess(res, libro, 'Libro actualizado con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar actualizar el libro');
     }
 };
 
@@ -94,9 +97,12 @@ const deleteLibro = async (req: Request, res: Response, next: NextFunction) => {
     const libroId = req.params.libroId;
     try {
         const libro = await LibroService.deleteLibro(libroId);
-        return libro ? res.status(201).json(libro) : res.status(404).json({ message: 'not found' });
+        if (!libro) {
+            return sendError(res, 'No se encontró el libro solicitado para eliminar', 'Not Found', 404);
+        }
+        return sendSuccess(res, libro, 'Libro eliminado con éxito', 200);
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al intentar eliminar el libro');
     }
 };
 
@@ -104,9 +110,11 @@ const restoreLibro = async (req: Request, res: Response, next: NextFunction) => 
     const libroId = req.params.libroId;
     try {
         const libro = await LibroService.restoreLibro(libroId);
-        return libro ? res.status(200).json(libro) : res.status(404).json({ message: 'not found' });
+        if (!libro) return sendError(res, 'No se encontró el libro para restaurar', 'Not Found', 404);
+
+        return sendSuccess(res, libro, 'Libro restaurado con éxito');
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error al restaurar el libro');
     }
 };
 /** Para testing */
@@ -116,11 +124,12 @@ export async function createLibroByIsbn(req: Request, res: Response, next: NextF
     try {
         const libro = await LibroService.getLibroByIsbn(isbn);
         Logging.info(`Book found: ${libro}`);
-        if (libro !== null) return res.status(200).json(libro);
+        if (libro !== null) return sendSuccess(res, libro, 'El libro ya existía en la base de datos');
+
         const libroSaved = await LibroService.createLibroByIsbn(isbn);
-        return res.status(201).json(libroSaved);
+        return sendSuccess(res, libroSaved, 'Libro creado mediante ISBN con éxito', 201);
     } catch (error) {
-        return res.status(500).json({ error });
+        return sendError(res, error, 'Error crítico al gestionar el libro por ISBN');
     }
 }
 
@@ -132,10 +141,12 @@ async function searchLibroByTitle(req: Request, res: Response, next: NextFunctio
 
     try {
         const libros = await LibroService.searchLibroByTitle(term, page, limit, userId);
-        if (libros.length === 0) return res.status(404).json({ message: `The term ${term} was not found` });
-        return res.status(200).json(libros);
+        if (libros.length === 0) {
+            return sendError(res, `No se encontraron coincidencias para el término: ${term}`, 'Not Found', 404);
+        }
+        return sendSuccess(res, libros, 'Búsqueda procesada con resultados');
     } catch (error) {
-        return res.status(400).json({ error });
+        return sendError(res, error, 'Error al procesar la búsqueda por título');
     }
 }
 
