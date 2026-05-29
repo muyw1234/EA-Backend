@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Query } from 'mongoose';
 import Libro, { ILibroModel, ILibro } from '../models/Libro';
 import Usuario from '../models/Usuario';
 import { callOpenLibraryBookApi } from './Util';
@@ -57,7 +57,10 @@ export async function getLibro(id: string): Promise<ILibro | null> {
 
 export async function getAllLibros(page = 1, limit = 10): Promise<PaginatedResult<ILibro>> {
     const pagination = getPagination(page, limit);
-    const [data, total] = await Promise.all([Libro.find().sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit).populate('authors', 'fullName').populate('owner', 'name'), Libro.countDocuments()]);
+    const [data, total] = await Promise.all([
+        Libro.find().sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit).populate('authors', 'fullName').populate('owner', 'name'),
+        Libro.countDocuments()
+    ]);
 
     return {
         data,
@@ -73,12 +76,15 @@ export async function getAllLibros(page = 1, limit = 10): Promise<PaginatedResul
 export async function getAllLibros_NOT_Deleted(page = 1, limit = 10, excludeOwnerId?: string): Promise<PaginatedResult<ILibro>> {
     const pagination = getPagination(page, limit);
     const filter: any = { IsDeleted: false };
-    
+
     if (excludeOwnerId && mongoose.Types.ObjectId.isValid(excludeOwnerId)) {
         filter.owner = { $ne: new mongoose.Types.ObjectId(excludeOwnerId) };
     }
-    
-    const [data, total] = await Promise.all([Libro.find(filter).sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit).populate('authors', 'fullName').populate('owner', 'name'), Libro.countDocuments(filter)]);
+
+    const [data, total] = await Promise.all([
+        Libro.find(filter).sort({ _id: 1 }).skip(pagination.skip).limit(pagination.limit).populate('authors', 'fullName').populate('owner', 'name'),
+        Libro.countDocuments(filter)
+    ]);
 
     return {
         data,
@@ -93,11 +99,11 @@ export async function getAllLibros_NOT_Deleted(page = 1, limit = 10, excludeOwne
 
 export async function getLibrosByType(type: string, excludeOwnerId?: string): Promise<ILibro[] | []> {
     const filter: any = { type: type, IsDeleted: false };
-    
+
     if (excludeOwnerId && mongoose.Types.ObjectId.isValid(excludeOwnerId)) {
         filter.owner = { $ne: new mongoose.Types.ObjectId(excludeOwnerId) };
     }
-    
+
     return await Libro.find(filter).populate('authors', 'fullName').populate('owner', 'name');
 }
 
@@ -117,9 +123,18 @@ export async function getLibroByIsbn(isbn: string): Promise<ILibroModel | null> 
     return await Libro.findOne({ isbn: isbn });
 }
 
+//#region Search
+
+async function searchLibroByTermAndUser(term: string, owner: string, page = 1, limit = 10): Promise<Partial<ILibro>[] | []> {
+    // return await Libro.find({ title: { $regex: `${term}` } }) // Esto es con expresiones regulares. El profe recomienda hacerlo por index text. https://medium.com/the-tech-bible/how-to-do-full-text-search-in-mongodb-using-mongoose-28e868092dd7
+    return Libro.find({ owner: owner, $text: { $search: term } }) // buscar los libros con ese termino en el titulo/nombre del autor AND que lo posea el owner.
+        .limit(limit)
+        .skip((page - 1) * limit); // saltarte los terminos que ya has visto
+}
+
 async function searchLibroByTitle(term: string, page = 1, limit = 10, excludeOwnerId?: string): Promise<ILibroModel[] | []> {
     const filter: any = { $text: { $search: term } };
-    
+
     if (excludeOwnerId && mongoose.Types.ObjectId.isValid(excludeOwnerId)) {
         filter.owner = { $ne: new mongoose.Types.ObjectId(excludeOwnerId) };
     }
@@ -128,6 +143,8 @@ async function searchLibroByTitle(term: string, page = 1, limit = 10, excludeOwn
         .limit(limit)
         .skip((page - 1) * limit);
 }
+
+//#endregion
 
 export async function buyLibro(libroId: string, userId: string): Promise<boolean> {
     try {
@@ -142,7 +159,7 @@ export async function buyLibro(libroId: string, userId: string): Promise<boolean
         const updatedUser = await Usuario.findByIdAndUpdate(userId, {
             $push: { boughtLibros: libroId }
         });
-        
+
         if (!updatedUser) {
             Logging.error('User not found in buyLibro');
             return false;
@@ -168,7 +185,7 @@ export async function rentLibro(libroId: string, userId: string): Promise<boolea
         const updatedUser = await Usuario.findByIdAndUpdate(userId, {
             $push: { rentedLibros: libroId }
         });
-        
+
         if (!updatedUser) {
             Logging.error('User not found in rentLibro');
             return false;
@@ -181,4 +198,19 @@ export async function rentLibro(libroId: string, userId: string): Promise<boolea
     }
 }
 
-export default { createLibro, createLibroByIsbn, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, getLibroByIsbn, searchLibroByTitle, buyLibro, rentLibro };
+export default {
+    createLibro,
+    createLibroByIsbn,
+    getLibro,
+    getAllLibros,
+    getAllLibros_NOT_Deleted,
+    getLibrosByType,
+    updateLibro,
+    deleteLibro,
+    restoreLibro,
+    getLibroByIsbn,
+    searchLibroByTermAndUser,
+    searchLibroByTitle,
+    buyLibro,
+    rentLibro
+};

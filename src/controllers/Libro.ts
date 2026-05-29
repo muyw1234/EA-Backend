@@ -133,6 +133,21 @@ export async function createLibroByIsbn(req: Request, res: Response, next: NextF
     }
 }
 
+async function searchLibroByTermAndUser(req: Request, res: Response, next: NextFunction) {
+    const { page, limit } = getPaginationParams(req);
+    const term: string = req.query.term as string;
+    const userId = req.params.userId!;
+
+    Logging.info(`Search the term: ${term} in the user inventory.`);
+    try {
+        const libros = await LibroService.searchLibroByTermAndUser(term, userId, page, limit);
+        if (libros.length === 0) return sendError(res, `No se encontraron coincidencias para el término: ${term} en el usuario ${userId}.`, 'Not found', 404); // no soy muy fan de poner las cosas de la cabecera en el body :)
+        return sendSuccess(res, libros, 'Búsqueda procesada con resultados');
+    } catch (error) {
+        return sendError(res, error, 'ops, algo ha ido mal.');
+    }
+}
+
 async function searchLibroByTitle(req: Request, res: Response, next: NextFunction) {
     const { page, limit } = getPaginationParams(req);
     const term: string = req.query.term as string;
@@ -192,4 +207,18 @@ const rentLibro = async (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-export default { createLibro, getLibro, getAllLibros, getAllLibros_NOT_Deleted, getLibrosByType, updateLibro, deleteLibro, restoreLibro, createLibroByIsbn, searchLibroByTitle, buyLibro, rentLibro };
+export default {
+    createLibro,
+    getLibro,
+    getAllLibros,
+    getAllLibros_NOT_Deleted,
+    getLibrosByType,
+    updateLibro,
+    deleteLibro,
+    restoreLibro,
+    createLibroByIsbn,
+    searchLibroByTitle,
+    searchLibroByTermAndUser,
+    buyLibro,
+    rentLibro
+};

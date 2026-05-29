@@ -287,6 +287,9 @@ router.get('/all', controller.getAllLibros);
  */
 router.get('/search', OptionalTokenValidation, controller.searchLibroByTitle);
 
+// TO DO, un comentario swagger
+router.get('/search/:userId', OptionalTokenValidation, controller.searchLibroByTermAndUser);
+
 /**
  * @openapi
  * /libros/{libroId}:

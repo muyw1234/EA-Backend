@@ -42,6 +42,6 @@ const LibroSchema: Schema = new Schema(
     }
 );
 
-LibroSchema.index({ title: 'text', isbn: 'text', autor: 'text' });
+LibroSchema.index({ title: 'text', isbn: 'text', autor: 'text' }); // No se puede poner ownerId, arrastra la eficiencia
 
 export default mongoose.model<ILibroModel>('Libro', LibroSchema);
